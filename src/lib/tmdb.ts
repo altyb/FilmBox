@@ -137,10 +137,16 @@ export const searchMedia = async (query: string, page: number = 1) => {
     include_adult: false,
     page,
   });
+  
+  // Only return movies and tv shows with their media_type
   return {
-    results: results.filter((item: any) => 
-      item.media_type === "movie" || item.media_type === "tv"
-    ),
+    results: results
+      .filter((item: any) => item.media_type === "movie" || item.media_type === "tv")
+      .map((item: any) => ({
+        ...item,
+        // Ensure title is properly mapped for both movies and tv shows
+        title: item.media_type === "movie" ? item.title : item.name
+      })),
     total_pages
   };
 };

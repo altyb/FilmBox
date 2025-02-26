@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { SearchSection } from "@/components/SearchSection";
-import { MediaGrid } from "@/components/MediaGrid";
+import { MediaCard } from "@/components/MediaCard";
 import { searchMedia } from "@/lib/tmdb";
 import { useLanguageStore, translations } from "@/lib/language";
 import { Button } from "@/components/ui/button";
@@ -44,8 +44,15 @@ const Search = () => {
               <h2 className="text-2xl font-semibold">
                 {language === 'ar' ? 'نتائج البحث' : 'Search Results'} ({searchResults.length})
               </h2>
-              <MediaGrid items={searchResults} type="movie" />
-              
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
+                {searchResults.map((item) => (
+                  <MediaCard 
+                    key={item.id} 
+                    media={item} 
+                    type={item.media_type as "movie" | "tv"} 
+                  />
+                ))}
+              </div>
               {hasMorePages && (
                 <div className="flex justify-center mt-8">
                   <Button 
