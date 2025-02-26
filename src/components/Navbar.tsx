@@ -49,7 +49,7 @@ export const Navbar = () => {
             >
               <Logo className="w-8 h-8 transition-transform group-hover:scale-110" />
               <span className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-                Flixfy
+                Flixsy
               </span>
             </Link>
             {/* Language selector for mobile - Always visible */}
