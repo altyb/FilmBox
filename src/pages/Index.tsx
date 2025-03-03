@@ -27,9 +27,12 @@ const Index = () => {
     );
   }
 
+  // Get the first 5 trending movies for the hero carousel
+  const heroMovies = trendingMovies.slice(0, 5);
+
   return (
     <div>
-      <HeroSection media={trendingMovies[0]} type="movie" />
+      <HeroSection media={heroMovies} type="movie" />
       <div className="container mx-auto px-4 py-8 space-y-12">
         <MediaGrid title="Popular Movies" items={popularMovies} type="movie" />
         <MediaGrid title="Popular TV Shows" items={popularTvShows} type="tv" />
