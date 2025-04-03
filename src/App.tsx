@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import MediaDetails from "./pages/MediaDetails"; // updated import statement
 import ActorDetails from "./pages/ActorDetails";
 import TvShows from "./pages/TvShows";
+import Movies from "./pages/Movies"; // import Movies component
 import { Navbar } from "./components/Navbar"; 
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { Loader } from "@/components/ui/Loader";
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/tv" element={<TvShows />} />
+                <Route path="/movies" element={<Movies />} />
                 <Route path="/:type/:id" element={<MediaDetails />} />
                 <Route path="/actor/:id" element={<ActorDetails />} />
                 <Route path="*" element={<NotFound />} />

@@ -18,7 +18,7 @@ const Search = () => {
     queryKey: ["search", query, page],
     queryFn: () => searchMedia(query, page),
     enabled: !!query,
-    keepPreviousData: true
+    placeholderData: (oldData) => oldData
   });
 
   const searchResults = data?.results || [];
@@ -42,7 +42,7 @@ const Search = () => {
           ) : searchResults?.length ? (
             <div className="space-y-8">
               <h2 className="text-2xl font-semibold">
-                {language === 'ar' ? 'نتائج البحث' : 'Search Results'} ({searchResults.length})
+                {t.searchResults} ({searchResults.length})
               </h2>
               <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
                 {searchResults.map((item) => (
@@ -65,7 +65,7 @@ const Search = () => {
                     {isFetching ? (
                       <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary"></div>
                     ) : (
-                      language === 'ar' ? 'عرض المزيد' : 'Load More'
+                      t.loadMore
                     )}
                   </Button>
                 </div>
@@ -74,12 +74,10 @@ const Search = () => {
           ) : (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold text-foreground/80">
-                {language === 'ar' ? 'لا توجد نتائج' : 'No results found'}
+                {t.noResultsFound}
               </h2>
               <p className="mt-2 text-foreground/60">
-                {language === 'ar' 
-                  ? 'جرب استخدام كلمات مختلفة' 
-                  : 'Try using different keywords'}
+                {t.tryDifferentKeywords}
               </p>
             </div>
           )}

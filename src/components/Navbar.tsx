@@ -49,7 +49,7 @@ export const Navbar = () => {
             >
               <Logo className="w-8 h-8 transition-transform group-hover:scale-110" />
               <span className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-                Reelify
+                {t.siteName}
               </span>
             </Link>
             {/* Language selector for mobile - Always visible */}
@@ -70,6 +70,15 @@ export const Navbar = () => {
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-primary",
                   location.pathname === "/" && "text-primary"
+                )}
+              >
+                {t.home}
+              </Link>
+              <Link
+                to="/movies"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  location.pathname === "/movies" && "text-primary"
                 )}
               >
                 {t.movies}
@@ -156,6 +165,16 @@ export const Navbar = () => {
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location.pathname === "/" && "text-primary"
+              )}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t.home}
+            </Link>
+            <Link
+              to="/movies"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                location.pathname === "/movies" && "text-primary"
               )}
               onClick={() => setIsMenuOpen(false)}
             >

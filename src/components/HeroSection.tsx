@@ -2,6 +2,7 @@ import { Movie, TvShow, getImageUrl } from "@/lib/tmdb";
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useLanguageStore, translations } from "@/lib/language";
 
 interface HeroSectionProps {
   media: Movie | TvShow | (Movie | TvShow)[];
@@ -12,6 +13,8 @@ export const HeroSection = ({ media, type }: HeroSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const mediaItems = Array.isArray(media) ? media : [media];
+  const { language } = useLanguageStore();
+  const t = translations[language];
   
   useEffect(() => {
     if (mediaItems.length <= 1) return;
@@ -87,7 +90,7 @@ export const HeroSection = ({ media, type }: HeroSectionProps) => {
             to={`/${type}/${currentMedia.id}`}
             className={`mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-lg font-medium text-primary-foreground transition-colors hover:bg-primary/90 transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
           >
-            View Details
+            {t.viewDetails}
           </Link>
           
           {mediaItems.length > 1 && (

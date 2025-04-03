@@ -96,12 +96,10 @@ export const SearchSection = () => {
       <div className="relative mx-auto max-w-3xl px-4" ref={searchRef}>
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-            {language === 'ar' ? 'اكتشف عالم الترفيه' : 'Discover Entertainment'}
+            {t.discoverEntertainment}
           </h1>
           <p className="mt-4 text-lg text-foreground/80">
-            {language === 'ar' 
-              ? 'ابحث عن أفلامك ومسلسلاتك المفضلة' 
-              : 'Search for your favorite movies and TV shows'}
+            {t.searchForFavorites}
           </p>
         </div>
 
@@ -150,7 +148,7 @@ export const SearchSection = () => {
                 <div className="rounded-xl border border-primary/10 bg-background/95 backdrop-blur-xl shadow-xl overflow-hidden">
                   {loading ? (
                     <div className="p-4 text-center text-foreground/60">
-                      {language === 'ar' ? 'جاري البحث...' : 'Searching...'}
+                      {t.searching}
                     </div>
                   ) : suggestions.length > 0 ? (
                     <div className="py-2">

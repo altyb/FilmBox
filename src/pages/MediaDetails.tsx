@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { tmdbApi } from "@/lib/tmdb";
-import { useLanguageStore } from "@/lib/language";
+import { useLanguageStore, translations } from "@/lib/language";
 import { 
   Star, 
   Film, 
@@ -115,6 +115,7 @@ interface Video {
 export const MediaDetails = () => {
   const { type, id } = useParams();
   const { language } = useLanguageStore();
+  const t = translations[language];
 
   const { data: details } = useQuery<MediaDetailsProps>({
     queryKey: ["media", type, id, language],
@@ -169,11 +170,20 @@ export const MediaDetails = () => {
   };
 
   const getGender = (gender: number) => {
-    switch (gender) {
-      case 1: return "Female";
-      case 2: return "Male";
-      case 3: return "Non-binary";
-      default: return "Not specified";
+    if (language === 'ar') {
+      switch (gender) {
+        case 1: return "أنثى";
+        case 2: return "ذكر";
+        case 3: return "غير ثنائي";
+        default: return "غير محدد";
+      }
+    } else {
+      switch (gender) {
+        case 1: return "Female";
+        case 2: return "Male";
+        case 3: return "Non-binary";
+        default: return "Not specified";
+      }
     }
   };
 
@@ -243,14 +253,14 @@ export const MediaDetails = () => {
                 <div className="rounded-lg border bg-card p-4 text-center">
                   <Star className="mx-auto h-6 w-6 text-yellow-500" />
                   <div className="mt-2 text-2xl font-bold">{details.vote_average.toFixed(1)}</div>
-                  <div className="text-sm text-muted-foreground">Rating</div>
+                  <div className="text-sm text-muted-foreground">{t.rating}</div>
                 </div>
               )}
               {details.vote_count && (
                 <div className="rounded-lg border bg-card p-4 text-center">
                   <Users className="mx-auto h-6 w-6 text-primary" />
                   <div className="mt-2 text-2xl font-bold">{formatNumber(details.vote_count)}</div>
-                  <div className="text-sm text-muted-foreground">Votes</div>
+                  <div className="text-sm text-muted-foreground">{t.votes}</div>
                 </div>
               )}
             </div>
@@ -259,13 +269,13 @@ export const MediaDetails = () => {
             <div className="rounded-lg border bg-card p-4 space-y-4">
               {details.status && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
+                  <div className="text-sm text-muted-foreground">{t.status}</div>
                   <div className="font-medium">{details.status}</div>
                 </div>
               )}
               {(details.release_date || details.first_air_date) && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Release Date</div>
+                  <div className="text-sm text-muted-foreground">{t.releaseDate}</div>
                   <div className="font-medium">
                     {new Date(details.release_date || details.first_air_date || "").toLocaleDateString()}
                   </div>
@@ -273,15 +283,15 @@ export const MediaDetails = () => {
               )}
               {(details.runtime || details.episode_run_time?.[0]) && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Runtime</div>
+                  <div className="text-sm text-muted-foreground">{t.runtime}</div>
                   <div className="font-medium">
-                    {details.runtime || details.episode_run_time?.[0]} minutes
+                    {details.runtime || details.episode_run_time?.[0]} {t.minutes}
                   </div>
                 </div>
               )}
               {details.genres && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Genres</div>
+                  <div className="text-sm text-muted-foreground">{t.genres}</div>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {details.genres.map(genre => (
                       <span key={genre.id} className="rounded-full bg-primary/10 px-2 py-1 text-xs">
@@ -295,13 +305,13 @@ export const MediaDetails = () => {
                 <>
                   {details.number_of_seasons && (
                     <div>
-                      <div className="text-sm text-muted-foreground">Seasons</div>
+                      <div className="text-sm text-muted-foreground">{t.seasons}</div>
                       <div className="font-medium">{details.number_of_seasons}</div>
                     </div>
                   )}
                   {details.number_of_episodes && (
                     <div>
-                      <div className="text-sm text-muted-foreground">Episodes</div>
+                      <div className="text-sm text-muted-foreground">{t.episodes}</div>
                       <div className="font-medium">{details.number_of_episodes}</div>
                     </div>
                   )}
@@ -311,13 +321,13 @@ export const MediaDetails = () => {
                 <>
                   {details.budget !== undefined && details.budget > 0 && (
                     <div>
-                      <div className="text-sm text-muted-foreground">Budget</div>
+                      <div className="text-sm text-muted-foreground">{t.budget}</div>
                       <div className="font-medium">{formatCurrency(details.budget)}</div>
                     </div>
                   )}
                   {details.revenue !== undefined && details.revenue > 0 && (
                     <div>
-                      <div className="text-sm text-muted-foreground">Revenue</div>
+                      <div className="text-sm text-muted-foreground">{t.revenue}</div>
                       <div className="font-medium">{formatCurrency(details.revenue)}</div>
                     </div>
                   )}
@@ -342,7 +352,7 @@ export const MediaDetails = () => {
             {(details.biography || details.overview) && (
               <div>
                 <h2 className="text-2xl font-semibold mb-3">
-                  {isPerson ? "Biography" : "Overview"}
+                  {isPerson ? t.biography : t.overview}
                 </h2>
                 <p className="text-lg leading-relaxed text-foreground/80">
                   {details.biography || details.overview}
@@ -356,7 +366,7 @@ export const MediaDetails = () => {
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {details.birthday && (
                     <div className="rounded-lg border bg-card p-4">
-                      <div className="text-sm text-muted-foreground">Birthday</div>
+                      <div className="text-sm text-muted-foreground">{t.birthday}</div>
                       <div className="font-medium">
                         {new Date(details.birthday).toLocaleDateString()}
                       </div>
@@ -364,19 +374,19 @@ export const MediaDetails = () => {
                   )}
                   {details.place_of_birth && (
                     <div className="rounded-lg border bg-card p-4">
-                      <div className="text-sm text-muted-foreground">Place of Birth</div>
+                      <div className="text-sm text-muted-foreground">{t.placeOfBirth}</div>
                       <div className="font-medium">{details.place_of_birth}</div>
                     </div>
                   )}
                   {details.gender && (
                     <div className="rounded-lg border bg-card p-4">
-                      <div className="text-sm text-muted-foreground">Gender</div>
+                      <div className="text-sm text-muted-foreground">{t.gender}</div>
                       <div className="font-medium">{getGender(details.gender)}</div>
                     </div>
                   )}
                   {details.popularity && (
                     <div className="rounded-lg border bg-card p-4">
-                      <div className="text-sm text-muted-foreground">Popularity</div>
+                      <div className="text-sm text-muted-foreground">{t.popular}</div>
                       <div className="font-medium">{details.popularity.toFixed(1)}</div>
                     </div>
                   )}
@@ -385,7 +395,7 @@ export const MediaDetails = () => {
                 {/* Acting Credits */}
                 {sortedMovies && sortedMovies.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Acting</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.acting}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {sortedMovies.slice(0, 6).map((credit) => (
                         <Link
@@ -416,7 +426,7 @@ export const MediaDetails = () => {
                             </div>
                             {credit.character && (
                               <div className="text-sm text-muted-foreground">
-                                as {credit.character}
+                                {t.as} {credit.character}
                               </div>
                             )}
                             <div className="mt-1 text-sm text-muted-foreground">
@@ -432,7 +442,7 @@ export const MediaDetails = () => {
                 {/* Crew Credits */}
                 {sortedCrew && sortedCrew.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Crew</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.crew}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {sortedCrew.slice(0, 6).map((credit) => (
                         <Link
@@ -481,7 +491,7 @@ export const MediaDetails = () => {
                 {/* Videos */}
                 {videos?.results && videos.results.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Videos</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.videos}</h2>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {videos.results.slice(0, 4).map(video => (
                         <div key={video.id} className="aspect-video">
@@ -500,7 +510,7 @@ export const MediaDetails = () => {
                 {/* Cast */}
                 {credits?.cast && credits.cast.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Cast</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.cast}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {credits.cast.slice(0, 6).map(person => (
                         <Link
@@ -525,7 +535,7 @@ export const MediaDetails = () => {
                             <div className="font-medium">{person.name}</div>
                             {person.character && (
                               <div className="text-sm text-muted-foreground">
-                                as {person.character}
+                                {t.as} {person.character}
                               </div>
                             )}
                           </div>
@@ -538,7 +548,7 @@ export const MediaDetails = () => {
                 {/* Production Info */}
                 {details.production_companies && details.production_companies.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Production</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.production}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {details.production_companies.map(company => (
                         <div key={company.id} className="flex items-center gap-3 rounded-lg border bg-card p-3">
@@ -564,7 +574,7 @@ export const MediaDetails = () => {
                 {/* TV Show Seasons */}
                 {type === "tv" && details.seasons && details.seasons.length > 0 && (
                   <div>
-                    <h2 className="text-2xl font-semibold mb-4">Seasons</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{t.seasons}</h2>
                     <div className="space-y-4">
                       {details.seasons.map(season => (
                         <div
@@ -587,7 +597,7 @@ export const MediaDetails = () => {
                           <div>
                             <div className="font-medium">{season.name}</div>
                             <div className="text-sm text-muted-foreground">
-                              {season.episode_count} Episodes
+                              {season.episode_count} {t.episodes}
                               {season.air_date && (
                                 <> • {new Date(season.air_date).getFullYear()}</>
                               )}
@@ -614,7 +624,7 @@ export const MediaDetails = () => {
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Official Website
+                      {t.officialWebsite}
                     </a>
                   </div>
                 )}
