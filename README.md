@@ -18,9 +18,3 @@
 
 - **Frontend:** TypeScript, React, Vite  
 - **Movie Data Source:** Movie Database API  
-
----
-
-## 🌐 Live Demo
-
-🔗 Experience Reelify at: [https://reelify.netlify.app/](https://reelify.netlify.app/)
