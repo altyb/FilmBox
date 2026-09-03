@@ -191,7 +191,7 @@ const Title = ({ media }: { media: MediaType }) => {
             <img src={backdrop} alt="" aria-hidden="true" fetchPriority="high" className="projected h-full w-full object-cover" />
           )}
           <div className="beam absolute inset-0" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-background/25" />
+          <div className="projection-veil absolute inset-0" />
         </div>
 
         <div className="container grid gap-8 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12 lg:py-16">

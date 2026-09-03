@@ -74,6 +74,12 @@ in Arabic script.
 - `.spec-row` dotted leaders for every key/value pair.
 - Grain: a static SVG `feTurbulence` tile at 0.05 / 0.035 opacity,
   `mix-blend-mode: overlay`. Never animated.
+- Backdrops: `--backdrop-opacity` 0.45 dark / 0.90 light. Readability comes
+  from `.projection-veil` — solid ground on the side the copy sits on, clearing
+  to bare image on the other (direction flips under RTL) — **not** from fading
+  the picture. Fading it is what erased the light-mode hero twice: first at
+  0.22 under a full scrim, then at 0.42 under a `brightness(1.45)` filter that
+  blew bright backdrops to white.
 - Easing: `--ease-out: cubic-bezier(.23,1,.32,1)`, `--ease-in-out: cubic-bezier(.77,0,.175,1)`.
 - Durations: press 160ms, hover/colour 180–200ms, dialog 220ms, list stagger
   40ms/item. Nothing over 300ms except the 420ms one-shot entrance and the

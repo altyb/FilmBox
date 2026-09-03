@@ -82,7 +82,7 @@ export const ProjectorHero = ({ items }: { items: MediaSummary[] }) => {
           />
         )}
         <div className="beam absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+        <div className="projection-veil absolute inset-0" />
       </div>
 
       <div className="container grid gap-8 py-12 sm:py-16 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:py-20">
