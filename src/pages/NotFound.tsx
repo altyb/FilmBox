@@ -1,25 +1,29 @@
-import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useT } from "@/lib/language";
+import { Logo } from "@/components/brand/Logo";
 
 const NotFound = () => {
-  const location = useLocation();
+  const { t } = useT();
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
+    document.title = `404 · ${t.brand}`;
+  }, [t.brand]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
-      </div>
+    <div className="container flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
+      <Logo className="h-10 w-10 text-foreground" />
+      <p className="marquee mt-8 text-[clamp(4rem,18vw,10rem)] leading-none text-primary">404</p>
+      <h1 className="marquee mt-4 text-2xl">{t.notFound}</h1>
+      <p className="mt-3 max-w-sm text-pretty text-sm text-muted-foreground">{t.notFoundHint}</p>
+      <code className="label mt-4 border border-border bg-surface px-2 py-1 text-muted-foreground">{pathname}</code>
+      <Link
+        to="/"
+        className="label press mt-8 border border-primary bg-primary px-6 py-3 text-primary-foreground transition-colors duration-200 hover:bg-transparent hover:text-primary"
+      >
+        {t.backHome}
+      </Link>
     </div>
   );
 };

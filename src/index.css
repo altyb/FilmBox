@@ -1,5 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+/* Reelify — "Projection"
+ * macrostructure: Archive Index (nav-marquee / projector-hero / numbered rails / spec-sheet detail)
+ * mood: warm-cinematic · radius 2px (sharp, film-gate) · grain overlay · amber projector-bulb accent
+ * dark  #0B0A09 bg · #F4EFE6 text · #E8A33D amber   → text/bg 17.3:1, bg/amber 9.2:1
+ * light #F4F0E7 bg · #16130E text · #925A15 amber   → text/bg 16.3:1, bg/amber 5.0:1
+ * verified with tastemaker/scripts/check_contrast.py --matrix
+ */
+
+/* Latin: Anton = marquee display, Archivo = UI, DM Mono = film-can metadata
+ * Arabic: IBM Plex Sans Arabic carries display AND body (Anton has no Arabic) */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,101 +16,249 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 215 20.2% 65.1%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 1.2%;
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 216 34% 17%;
-    --radius: 0.5rem;
+    /* --- dark is the native mode: the auditorium with the lights down --- */
+    --background: 30 10% 4%;
+    --foreground: 39 39% 93%;
+    --surface: 34 20% 7%;
+    --surface-2: 33 18% 10%;
+    --card: 34 20% 7%;
+    --card-foreground: 39 39% 93%;
+    --popover: 33 18% 10%;
+    --popover-foreground: 39 39% 93%;
+    --muted: 33 18% 10%;
+    --muted-foreground: 36 15% 56%;
+    --primary: 36 79% 57%;
+    --primary-foreground: 37 48% 5%;
+    --secondary: 33 18% 10%;
+    --secondary-foreground: 39 39% 93%;
+    --accent: 33 18% 10%;
+    --accent-foreground: 39 39% 93%;
+    --destructive: 5 54% 50%;
+    --destructive-foreground: 39 39% 93%;
+    --border: 32 21% 14%;
+    --input: 32 21% 14%;
+    --ring: 36 79% 57%;
+    --radius: 2px;
+
+    /* the projector bulb — a warm light source, not a decorative gradient */
+    --beam: 36 79% 57%;
+    --grain-opacity: 0.05;
+    --backdrop-opacity: 0.4;
+
+    /* motion (emil): custom curves, the built-ins are too weak */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
 
-  :root.light {
-    --background: 0 0% 100%;
-    --foreground: 224 71% 4%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --ring: 217.9 10.6% 64.9%;
-  }
-}
+  .light {
+    /* --- light mode: the print, on paper --- */
+    --background: 42 37% 93%;
+    --foreground: 38 22% 7%;
+    --surface: 42 100% 98%;
+    --surface-2: 42 37% 96%;
+    --card: 42 100% 98%;
+    --card-foreground: 38 22% 7%;
+    --popover: 42 100% 98%;
+    --popover-foreground: 38 22% 7%;
+    --muted: 42 37% 96%;
+    --muted-foreground: 37 12% 37%;
+    --primary: 33 75% 33%;
+    --primary-foreground: 42 100% 98%;
+    --secondary: 42 37% 96%;
+    --secondary-foreground: 38 22% 7%;
+    --accent: 42 37% 96%;
+    --accent-foreground: 38 22% 7%;
+    --destructive: 5 58% 42%;
+    --destructive-foreground: 42 100% 98%;
+    --border: 40 27% 81%;
+    --input: 40 27% 81%;
+    --ring: 33 75% 33%;
 
-@layer base {
+    --beam: 33 75% 33%;
+    --grain-opacity: 0.035;
+    --backdrop-opacity: 0.22;
+  }
+
   * {
     @apply border-border;
+    /* RTL/LTR-safe by construction: logical properties everywhere, no space-x hacks */
   }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'ss01' 1, 'cv01' 1;
+    /* stop iOS zooming inputs; 16px floor is set on the inputs themselves */
+    text-rendering: optimizeLegibility;
   }
+
+  [dir='ltr'] body { font-family: 'Archivo', system-ui, sans-serif; }
+  [dir='rtl'] body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; }
+
+  /* Only mirror icons that actually carry direction. The old build flipped
+   * every SVG in RTL, which mirrored stars, logos and play triangles too. */
+  [dir='rtl'] .rtl-flip { transform: scaleX(-1); }
+
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Firefox scrollbar in the rails */
+  .rail { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
+  .rail::-webkit-scrollbar { height: 6px; }
+  .rail::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
+  .rail::-webkit-scrollbar-track { background: transparent; }
 }
 
-[dir="rtl"] {
-  font-family: 'Noto Sans Arabic', sans-serif;
-}
+@layer components {
+  /* ---- Marquee lettering: the display voice ------------------------------ */
+  .marquee {
+    font-family: 'Anton', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 0.92;
+  }
+  /* Anton has no Arabic glyphs — fall back to Plex at a heavier weight and
+   * drop the uppercase/negative tracking, which are meaningless in Arabic. */
+  [dir='rtl'] .marquee {
+    font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1.15;
+  }
 
-[dir="ltr"] {
-  font-family: 'Inter', sans-serif;
-}
+  /* ---- Film-can label: every piece of metadata ------------------------- */
+  .label {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  [dir='rtl'] .label { letter-spacing: 0.04em; }
 
-[dir="rtl"] svg:not(.keep-ltr) {
-  transform: scaleX(-1);
-}
+  /* ---- 35mm gate: sprocket strips down both edges ---------------------- */
+  .film-gate::before,
+  .film-gate::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    width: 9px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 7px,
+      hsl(var(--background) / 0.85) 7px 15px
+    );
+    background-clip: content-box;
+    padding-block: 6px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .film-gate::before { inset-inline-start: 0; }
+  .film-gate::after { inset-inline-end: 0; }
 
-[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
-}
-
-[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
-}
-
-[dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
-}
-
-[dir="rtl"] .space-x-8 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
+  /* ---- Dotted leaders, like a film-can spec sheet ---------------------- */
+  .spec-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .spec-row > dt { flex: none; }
+  .spec-row > .leader {
+    flex: 1;
+    border-bottom: 1px dotted hsl(var(--muted-foreground) / 0.4);
+    transform: translateY(-0.25rem);
+    min-width: 1.5rem;
+  }
+  .spec-row > dd { flex: none; text-align: end; }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent;
+  /* Static film grain. Never animated — animated grain is a nausea and a
+   * paint-cost problem, and a still emulsion is what film actually looks like. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* The beam: warm light thrown from the top of the frame, plus a vignette
+   * so the backdrop reads as projected rather than pasted on. */
+  .beam {
+    background:
+      radial-gradient(120% 80% at 50% -10%, hsl(var(--beam) / 0.16), transparent 60%),
+      radial-gradient(100% 100% at 50% 50%, transparent 40%, hsl(var(--background) / 0.75) 100%);
+  }
+
+  /* The projected image itself. Opacity is a token because the light theme
+   * needs a much thinner projection to keep text off the picture. */
+  .projected { opacity: var(--backdrop-opacity); }
+
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Hover effects are pointer-only — touch devices fire :hover on tap. */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-lift { transition: transform 180ms var(--ease-out); }
+    .hover-lift:hover { transform: translateY(-3px); }
+  }
+
+  .press { transition: transform 160ms var(--ease-out); }
+  .press:active { transform: scale(0.97); }
+
+  /* Staggered entrance, 40ms apart, driven by a per-item --i */
+  .stagger-in {
+    opacity: 0;
+    animation: cell-in 420ms var(--ease-out) forwards;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+  @keyframes cell-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--surface-2)) 0%,
+      hsl(var(--border)) 50%,
+      hsl(var(--surface-2)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  @keyframes shimmer {
+    to { background-position: -200% 0; }
   }
 }
 
-.bg-grid-white\/5 {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-}
-
-.bg-grid-white\/10 {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+/* Reduced motion means fewer and gentler animations, not zero: keep opacity
+ * and colour, drop everything that moves. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .stagger-in { opacity: 1; animation: none; }
+  .hover-lift:hover { transform: none; }
+  .press:active { transform: none; }
+  .shimmer { animation: none; }
 }

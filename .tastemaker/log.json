@@ -1,0 +1,20 @@
+{
+  "builds": [
+    {
+      "date": "2026-09-03",
+      "project": "reelify",
+      "mood": "warm-cinematic",
+      "macrostructure": "Archive Index",
+      "archetypes": {
+        "nav": "sticky-marquee-underline",
+        "hero": "projector-split (gate poster + marquee title)",
+        "browse": "numbered-mat-grid",
+        "detail": "spec-sheet-aside",
+        "rail": "snap-scroll-reel",
+        "footer": "brand-plus-attribution"
+      },
+      "radius": "2px",
+      "notes": "Sharp corners, static grain, amber single-accent. Rotate away from split-hero and card-trio next time."
+    }
+  ]
+}

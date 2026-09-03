@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    path { fill: #ffffff; }
-    @media (prefers-color-scheme: dark) {
-      path { fill: #ffffff; }
-    }
-  </style>
-  <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zM11.25 15.25L10 18l-1.25-2.75L6 14l2.75-1.25L10 10l1.25 2.75L14 14l-2.75 1.25zm5.69-3.31L16 14l-.94-2.06L13 11l2.06-.94L16 8l.94 2.06L19 11l-2.06.94z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <rect width="24" height="24" fill="#0B0A09"/>
+  <rect x="2.75" y="4.75" width="18.5" height="14.5" fill="none" stroke="#F4EFE6" stroke-width="1.5"/>
+  <rect x="5" y="7" width="1.8" height="1.8" fill="#F4EFE6"/>
+  <rect x="5" y="15.2" width="1.8" height="1.8" fill="#F4EFE6"/>
+  <rect x="17.2" y="7" width="1.8" height="1.8" fill="#F4EFE6"/>
+  <rect x="17.2" y="15.2" width="1.8" height="1.8" fill="#F4EFE6"/>
+  <circle cx="12" cy="12" r="3.4" fill="#E8A33D"/>
 </svg>
