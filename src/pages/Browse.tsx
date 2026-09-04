@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { SlidersHorizontal, X } from "lucide-react";
+import { RotateCw, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/language";
 import { formatNumber } from "@/lib/format";
@@ -39,7 +39,7 @@ const Browse = ({ media }: { media: MediaType }) => {
 
   const filtered = genres.length > 0 || !!year || minRating > 0 || params.has("sort");
 
-  const { data: genreList } = useQuery({
+  const { data: genreList, isError: genreError, refetch: refetchGenres } = useQuery({
     queryKey: ["genres", type, lang],
     queryFn: () => fetchGenres(type),
     staleTime: 24 * 60 * 60_000,
@@ -117,7 +117,10 @@ const Browse = ({ media }: { media: MediaType }) => {
           <label className="sr-only" htmlFor="sort">{t.sortBy}</label>
           <select id="sort" className={selectClass} value={sort} onChange={(e) => setParam("sort", e.target.value)}>
             {SORTS.map((s) => (
-              <option key={s.value} value={s.value}>{t[s.key]}</option>
+              <option key={s.value} value={s.value}>
+                {/* TV has no revenue data — this sort actually orders by vote count there. */}
+                {type === "tv" && s.value === "revenue.desc" ? t.sortMostVoted : t[s.key]}
+              </option>
             ))}
           </select>
 
@@ -145,7 +148,16 @@ const Browse = ({ media }: { media: MediaType }) => {
           )}
         </div>
 
-        {genreList && (
+        {genreError ? (
+          <button
+            type="button"
+            onClick={() => refetchGenres()}
+            className="label press inline-flex items-center gap-1.5 text-muted-foreground transition-colors duration-200 hover:text-primary"
+          >
+            <RotateCw className="h-3 w-3" aria-hidden="true" />
+            {t.retry}
+          </button>
+        ) : genreList && (
           <div className="rail -mb-2 flex gap-2 overflow-x-auto pb-2">
             {genreList.map((g) => (
               <button

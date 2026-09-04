@@ -68,10 +68,11 @@ const Person = () => {
     { label: t.knownFor, value: data.known_for_department },
     { label: t.born, value: formatDate(data.birthday, lang) },
     { label: t.died, value: formatDate(data.deathday, lang) },
-    { label: "—", value: data.place_of_birth },
+    { label: t.bornIn, value: data.place_of_birth },
+    { label: t.gender, value: formatGender(data.gender, lang) },
     { label: t.rating, value: data.popularity ? formatNumber(Math.round(data.popularity), lang) : null },
     { label: t.filmography, value: formatNumber(cast.length + crew.length, lang) },
-  ].filter((s) => !(s.label === "—" && !s.value));
+  ];
 
   const list = tab === "cast" ? cast : crew;
 
@@ -87,9 +88,6 @@ const Person = () => {
 
           <div className="border border-border bg-surface p-4">
             <SpecList items={specs} />
-            {formatGender(data.gender, lang) && (
-              <p className="label mt-4 text-muted-foreground">{formatGender(data.gender, lang)}</p>
-            )}
           </div>
 
           {data.external_ids?.imdb_id && (

@@ -17,7 +17,7 @@ const NotFound = () => {
       <p className="marquee mt-8 text-[clamp(4rem,18vw,10rem)] leading-none text-primary">404</p>
       <h1 className="marquee mt-4 text-2xl">{t.notFound}</h1>
       <p className="mt-3 max-w-sm text-pretty text-sm text-muted-foreground">{t.notFoundHint}</p>
-      <code className="label mt-4 border border-border bg-surface px-2 py-1 text-muted-foreground">{pathname}</code>
+      <code className="label mt-4 max-w-full break-all border border-border bg-surface px-2 py-1 text-muted-foreground">{pathname}</code>
       <Link
         to="/"
         className="label press mt-8 border border-primary bg-primary px-6 py-3 text-primary-foreground transition-colors duration-200 hover:bg-transparent hover:text-primary"

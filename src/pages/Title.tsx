@@ -45,7 +45,7 @@ const SeasonRow = ({ tvId, season }: { tvId: string; season: Season }) => {
   const [open, setOpen] = useState(false);
   const { t, lang } = useT();
 
-  const { data: episodes } = useQuery<Episode[]>({
+  const { data: episodes, isError, refetch } = useQuery<Episode[]>({
     queryKey: ["season", tvId, season.season_number, lang],
     queryFn: () => fetchSeason(tvId, season.season_number),
     enabled: open,
@@ -77,7 +77,9 @@ const SeasonRow = ({ tvId, season }: { tvId: string; season: Season }) => {
       </summary>
 
       <ul className="divide-y divide-border border-t border-border">
-        {!episodes
+        {isError ? (
+          <li className="p-3"><ErrorState onRetry={() => refetch()} /></li>
+        ) : !episodes
           ? Array.from({ length: 3 }, (_, i) => (
               <li key={i} className="p-3"><LineSkeleton className="w-2/3" /></li>
             ))
@@ -392,7 +394,7 @@ const Title = ({ media }: { media: MediaType }) => {
                     ) : (
                       <span className="h-5 w-10 border border-border" aria-hidden="true" />
                     )}
-                    <span className="text-xs text-muted-foreground">{c.name}</span>
+                    <span className="min-w-0 break-words text-xs text-muted-foreground">{c.name}</span>
                   </li>
                 ))}
               </ul>

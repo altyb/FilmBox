@@ -40,7 +40,7 @@ const Rail = ({
 const Home = () => {
   const { t, lang } = useT();
 
-  const { data: heroItems } = useQuery({
+  const { data: heroItems, isError: heroError, refetch: refetchHero } = useQuery({
     queryKey: ["trending", "all", lang],
     queryFn: async () => {
       const [films, series] = await Promise.all([fetchTrending("movie"), fetchTrending("tv")]);
@@ -62,6 +62,12 @@ const Home = () => {
     <>
       {heroItems ? (
         <ProjectorHero items={heroItems} />
+      ) : heroError ? (
+        <div className="border-b border-border">
+          <div className="container py-20">
+            <ErrorState onRetry={() => refetchHero()} />
+          </div>
+        </div>
       ) : (
         <div className="border-b border-border">
           <div className="container py-20">

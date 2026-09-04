@@ -180,7 +180,9 @@
     transform: translateY(-0.25rem);
     min-width: 1.5rem;
   }
-  .spec-row > dd { flex: none; text-align: end; }
+  /* The value must be allowed to shrink and wrap: a long one (a full
+   * place of birth, a studio list) overflowed the card before this. */
+  .spec-row > dd { flex: 0 1 auto; min-width: 0; text-align: end; overflow-wrap: anywhere; }
 }
 
 @layer utilities {

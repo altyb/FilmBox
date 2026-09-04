@@ -37,7 +37,7 @@ export const SearchBox = ({
   const debounced = useDebounce(query.trim(), 250);
   const enabled = debounced.length >= 2;
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, isError } = useQuery({
     queryKey: ["suggest", debounced, lang],
     queryFn: () => search("multi", debounced),
     enabled,
@@ -174,7 +174,7 @@ export const SearchBox = ({
         >
           {suggestions.length === 0 ? (
             <p className="label px-4 py-6 text-center text-muted-foreground">
-              {isFetching ? t.searching : t.noResults}
+              {isFetching ? t.searching : isError ? t.searchFailed : t.noResults}
             </p>
           ) : (
             suggestions.map((item, i) => {
@@ -210,7 +210,7 @@ export const SearchBox = ({
                     <span className="mt-0.5 flex items-center gap-2">
                       <Icon className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden="true" />
                       {isPerson ? (
-                        <span className="label truncate text-muted-foreground">
+                        <span className="label min-w-0 truncate text-muted-foreground">
                           {item.known_for?.map(titleOf).filter(Boolean).slice(0, 2).join(" · ") ||
                             item.known_for_department}
                         </span>
