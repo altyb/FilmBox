@@ -1,4 +1,4 @@
-# Reelify
+# FilmBox
 
 A projection booth for everything worth watching. Browse films and series, watch
 trailers, follow the people who make them — on the TMDB API.

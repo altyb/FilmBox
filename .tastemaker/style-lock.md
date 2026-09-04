@@ -1,4 +1,4 @@
-# Reelify — style lock
+# FilmBox — style lock
 
 Direction: **Projection** (Cinema Noir / Projector). Chosen by the user from three
 options on 2026-09-03. Every later screen reuses these tokens rather than
@@ -50,7 +50,7 @@ surface/primary **5.45**, muted-fg/bg **5.36**.
 within the same hue family until it cleared the text floor, per the lock rule.
 
 Toggle: real three-state control (dark / light / system), persisted in
-`reelify-theme` and applied by an inline script before first paint.
+`filmbox-theme` and applied by an inline script before first paint.
 
 ## Type
 

@@ -3,24 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reelify — a projection booth for everything worth watching</title>
+    <title>FilmBox — a projection booth for everything worth watching</title>
     <meta
       name="description"
       content="Browse films and series, watch trailers, and follow the people who make them. Powered by TMDB."
     />
     <meta name="theme-color" content="#0B0A09" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#F4F0E7" media="(prefers-color-scheme: light)" />
-    <meta property="og:title" content="Reelify" />
+    <meta property="og:title" content="FilmBox" />
     <meta property="og:description" content="A projection booth for everything worth watching." />
-    <meta property="og:image" content="https://reelify.altayeb.dev/og-image.png" />
-    <meta property="og:url" content="https://reelify.altayeb.dev/" />
-    <meta property="og:site_name" content="Reelify" />
+    <meta property="og:image" content="https://filmbox.altayeb.dev/og-image.png" />
+    <meta property="og:url" content="https://filmbox.altayeb.dev/" />
+    <meta property="og:site_name" content="FilmBox" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Reelify" />
+    <meta name="twitter:title" content="FilmBox" />
     <meta name="twitter:description" content="A projection booth for everything worth watching." />
-    <meta name="twitter:image" content="https://reelify.altayeb.dev/og-image.png" />
-    <link rel="canonical" href="https://reelify.altayeb.dev/" />
+    <meta name="twitter:image" content="https://filmbox.altayeb.dev/og-image.png" />
+    <link rel="canonical" href="https://filmbox.altayeb.dev/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
@@ -33,12 +33,12 @@
       // React store alone flashes the wrong theme on every reload.
       (function () {
         try {
-          var theme = JSON.parse(localStorage.getItem("reelify-theme") || "{}").state?.theme || "dark";
+          var theme = JSON.parse(localStorage.getItem("filmbox-theme") || "{}").state?.theme || "dark";
           var light = theme === "light" || (theme === "system" && matchMedia("(prefers-color-scheme: light)").matches);
           document.documentElement.classList.toggle("light", light);
           document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
 
-          var lang = JSON.parse(localStorage.getItem("reelify-language") || "{}").state?.language || "en";
+          var lang = JSON.parse(localStorage.getItem("filmbox-language") || "{}").state?.language || "en";
           document.documentElement.setAttribute("lang", lang);
           document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
         } catch (e) {}

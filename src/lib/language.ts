@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 export type Language = "en" | "ar";
 
 const en = {
-  brand: "Reelify",
+  brand: "FilmBox",
   tagline: "A projection booth for everything worth watching",
 
   home: "Home",
@@ -130,7 +130,7 @@ const en = {
 type Dict = typeof en;
 
 const ar: Record<keyof Dict, string> = {
-  brand: "ريلِفاي",
+  brand: "فيلم بوكس",
   tagline: "غرفة عرض لكل ما يستحق المشاهدة",
 
   home: "الرئيسية",
@@ -278,7 +278,7 @@ export const useLanguageStore = create<LanguageState>()(
       },
     }),
     {
-      name: "reelify-language",
+      name: "filmbox-language",
       onRehydrateStorage: () => (state) => {
         if (state) applyDocumentLanguage(state.language);
       },

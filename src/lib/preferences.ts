@@ -31,7 +31,7 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: "reelify-theme",
+      name: "filmbox-theme",
       onRehydrateStorage: () => (state) => applyTheme(state?.theme ?? "dark"),
     },
   ),
@@ -74,6 +74,6 @@ export const useWatchlist = create<WatchlistState>()(
       has: (mediaType, id) =>
         get().items.some((i) => i.id === id && i.mediaType === mediaType),
     }),
-    { name: "reelify-watchlist" },
+    { name: "filmbox-watchlist" },
   ),
 );

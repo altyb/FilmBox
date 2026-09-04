@@ -1,6 +1,6 @@
 {
-  "name": "Reelify",
-  "short_name": "Reelify",
+  "name": "FilmBox",
+  "short_name": "FilmBox",
   "description": "A projection booth for everything worth watching.",
   "start_url": "/",
   "display": "standalone",
