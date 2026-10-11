@@ -1,29 +1,95 @@
 import axios from "axios";
 import { useLanguageStore } from "./language";
 
-/* The v4 read token is public-by-design (read-only, rate-limited), but it does
- * not belong pinned in source. .env wins; the committed value only keeps a
- * fresh clone runnable. */
-const FALLBACK_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNjY1NWNhZmVjNDNmNzU2YmQxYTU2OGJiYmQ0NjdhOCIsIm5iZiI6MTczMjQyNDE1Ni4wNzgsInN1YiI6IjY3NDJiMWRjZjNmMjkxOTEyZTk1M2MzMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._NQM2KGJu6zikmRdh62hKo8vN9ZZByNPh7LJTVtGujo";
-
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN || FALLBACK_TOKEN;
+/* All TMDB traffic goes through our /api/tmdb proxy (Vercel function in
+ * production, vite dev proxy locally). The key lives server-side — the
+ * browser never sees it — and every visitor shares the proxy's cache. */
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
 export const apiLanguage = () =>
   useLanguageStore.getState().language === "ar" ? "ar-SA" : "en-US";
 
-export const tmdbApi = axios.create({
-  baseURL: "https://api.themoviedb.org/3",
-  headers: { Authorization: `Bearer ${TOKEN}` },
-});
+export const tmdbApi = axios.create({ baseURL: "/api/tmdb" });
+
+/* --------------------------------- rate guard -------------------------------
+ * Second layer behind the /api/tmdb proxy (which caches + throttles
+ * server-side): max 4 concurrent requests, max 30 starts per 10s window, and
+ * 429/5xx backoff with Retry-After. Keeps one tab from bursting. */
+const WINDOW_MS = 10_000;
+const MAX_STARTS_PER_WINDOW = 30;
+const MAX_CONCURRENT = 4;
+const MAX_RETRIES = 3;
+
+const startTimes: number[] = [];
+let inFlight = 0;
+const waiters: Array<() => void> = [];
+
+const pumpQueue = () => {
+  const now = Date.now();
+  while (startTimes.length > 0 && now - startTimes[0] > WINDOW_MS) startTimes.shift();
+  while (waiters.length > 0 && inFlight < MAX_CONCURRENT) {
+    if (startTimes.length >= MAX_STARTS_PER_WINDOW) break;
+    inFlight += 1;
+    startTimes.push(Date.now());
+    waiters.shift()!();
+  }
+  if (waiters.length > 0 && startTimes.length >= MAX_STARTS_PER_WINDOW) {
+    const wait = WINDOW_MS - (Date.now() - startTimes[0]) + 50;
+    setTimeout(pumpQueue, Math.max(wait, 50));
+  }
+};
+
+const acquireSlot = () =>
+  new Promise<void>((resolve) => {
+    waiters.push(resolve);
+    pumpQueue();
+  });
+
+const releaseSlot = () => {
+  inFlight = Math.max(0, inFlight - 1);
+  pumpQueue();
+};
+
+const retryCountOf = (config: object) =>
+  (config as Record<string, unknown>).__retryCount as number | undefined ?? 0;
+
+const setRetryCount = (config: object, n: number) => {
+  (config as Record<string, unknown>).__retryCount = n;
+};
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /* Read the language per request. The old client baked it in at module load,
  * which is why switching language had to reload the whole page. */
-tmdbApi.interceptors.request.use((config) => {
+tmdbApi.interceptors.request.use(async (config) => {
+  await acquireSlot();
   config.params = { language: apiLanguage(), ...config.params };
   return config;
 });
+
+tmdbApi.interceptors.response.use(
+  (response) => {
+    releaseSlot();
+    return response;
+  },
+  async (error) => {
+    releaseSlot();
+    const config = error?.config;
+    if (!config) throw error;
+    const status: number | undefined = error?.response?.status;
+    const retriable = status === 429 || !error.response || (status !== undefined && status >= 500);
+    const tries = retryCountOf(config);
+    if (!retriable || tries >= MAX_RETRIES) throw error;
+    setRetryCount(config, tries + 1);
+    const retryAfter = Number(error?.response?.headers?.["retry-after"]);
+    const delay =
+      Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1000
+        : Math.min(1000 * 2 ** tries, 8000) + Math.random() * 500;
+    await sleep(delay);
+    return tmdbApi(config);
+  },
+);
 
 const get = async <T = unknown>(path: string, params?: Record<string, unknown>): Promise<T> =>
   (await tmdbApi.get(path, { params })).data;
@@ -31,13 +97,22 @@ const get = async <T = unknown>(path: string, params?: Record<string, unknown>):
 /* ------------------------------------------------------------------ images */
 
 export type PosterSize = "w185" | "w342" | "w500" | "original";
-export type BackdropSize = "w780" | "w1280" | "original";
+export type BackdropSize = "w300" | "w780" | "w1280" | "original";
 
 export const posterUrl = (path?: string | null, size: PosterSize = "w342") =>
   path ? `${IMAGE_BASE_URL}/${size}${path}` : null;
 
 export const backdropUrl = (path?: string | null, size: BackdropSize = "w1280") =>
   path ? `${IMAGE_BASE_URL}/${size}${path}` : null;
+
+/** srcset candidates, so each device downloads the smallest file that is
+ *  still sharp at its size and pixel density (Lighthouse flagged ~1.8 MB of
+ *  oversized images when every tile used one fixed size). */
+export const posterSrcSet = (path?: string | null) =>
+  path ? (["w185", "w342", "w500"] as const).map((s) => `${IMAGE_BASE_URL}/${s}${path} ${s.slice(1)}w`).join(", ") : undefined;
+
+export const backdropSrcSet = (path?: string | null) =>
+  path ? (["w300", "w780", "w1280"] as const).map((s) => `${IMAGE_BASE_URL}/${s}${path} ${s.slice(1)}w`).join(", ") : undefined;
 
 export const profileUrl = (path?: string | null, size: "w185" | "h632" = "w185") =>
   path ? `${IMAGE_BASE_URL}/${size}${path}` : null;
@@ -209,6 +284,54 @@ export const fetchList = (media: MediaType, list: string, page = 1) => {
   return get<Paged<MediaSummary>>(endpoints[list] ?? LIST_ENDPOINTS[media].popular, { page });
 };
 
+/** Shared query options — one cache entry per list page / trending list, used
+ *  by the home hero, the home rails and Browse alike, so the same TMDB data is
+ *  never fetched twice (Browse page 1 of "top rated" is the home bento's data). */
+export const listQuery = (media: MediaType, list: string, lang: string, page = 1) => ({
+  queryKey: ["list", media, list, lang, page] as const,
+  queryFn: () => fetchList(media, list, page),
+  staleTime: 15 * 60_000,
+});
+
+/* The last trending lists are kept in localStorage, so a repeat visit paints
+ * the home hero and rails straight away (and index.html can preload the hero
+ * still before any JS) while a fresh copy loads in the background. */
+const trendingKey = (media: MediaType, lang: string) => `filmbox-trending-${media}-${lang}`;
+
+export const readTrendingCache = (media: MediaType, lang: string) => {
+  try {
+    const v = JSON.parse(localStorage.getItem(trendingKey(media, lang)) ?? "null");
+    return v && Array.isArray(v.items) ? (v as { at: number; items: MediaSummary[] }) : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveTrendingCache = (media: MediaType, lang: string, items: MediaSummary[]) => {
+  try {
+    localStorage.setItem(trendingKey(media, lang), JSON.stringify({ at: Date.now(), items: items.slice(0, 20) }));
+  } catch {
+    /* storage full or blocked: the cache is only a speed-up */
+  }
+  return items;
+};
+
+export const trendingQuery = (media: MediaType, lang: string) => ({
+  queryKey: ["trending", media, lang] as const,
+  queryFn: () => {
+    // index.html already started this request at HTML-parse time on the home
+    // page; use it once, fall back to a normal request if it failed.
+    const w = window as { __trendingMovie?: Promise<Paged<MediaSummary>> };
+    const early = media === "movie" ? w.__trendingMovie : undefined;
+    w.__trendingMovie = undefined;
+    const fresh = early ? early.then((d) => d.results).catch(() => fetchTrending(media)) : fetchTrending(media);
+    return fresh.then((items) => saveTrendingCache(media, lang, items));
+  },
+  initialData: () => readTrendingCache(media, lang)?.items,
+  initialDataUpdatedAt: () => readTrendingCache(media, lang)?.at,
+  staleTime: 15 * 60_000,
+});
+
 export interface DiscoverFilters {
   genres?: number[];
   sort?: string;
@@ -244,11 +367,18 @@ export const discover = (media: MediaType, filters: DiscoverFilters, page = 1) =
 export const fetchGenres = (media: MediaType) =>
   get<{ genres: Genre[] }>(`/genre/${media}/list`).then((d) => d.genres);
 
-export const fetchTitle = (media: MediaType, id: string) =>
-  get<TitleDetails>(`/${media}/${id}`, {
-    append_to_response: "credits,videos,recommendations,similar,watch/providers,images,external_ids",
-    include_image_language: "en,null",
-  });
+/** Keep in sync with the early fetch in index.html (same path + params). */
+const TITLE_APPEND = "credits,videos,recommendations,similar,watch/providers,images,external_ids";
+
+export const fetchTitle = (media: MediaType, id: string) => {
+  // On a direct load of a title page, index.html already started this exact
+  // request at HTML-parse time; use it once, fall back if it failed.
+  const w = window as { __earlyTitle?: { key: string; data: Promise<TitleDetails> } };
+  const early = w.__earlyTitle?.key === `${media}/${id}` ? w.__earlyTitle.data : undefined;
+  w.__earlyTitle = undefined;
+  const normal = () => get<TitleDetails>(`/${media}/${id}`, { append_to_response: TITLE_APPEND, include_image_language: "en,null" });
+  return early ? early.catch(normal) : normal();
+};
 
 /** TMDB's Arabic catalogue is sparse — plenty of titles have no ar overview.
  *  Used to backfill the synopsis rather than showing an empty block. */

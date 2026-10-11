@@ -1,10 +1,10 @@
-import { Suspense, lazy } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy, useEffect } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { Grain } from "@/components/layout/Grain";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { SiteFooter } from "@/components/layout/SiteFooter";
+import { TopBar } from "@/components/layout/TopBar";
+import { hideBoot } from "@/lib/boot";
 import { PosterGridSkeleton } from "@/components/common/States";
 import Home from "@/pages/Home";
 
@@ -17,16 +17,6 @@ const SearchPage = lazy(() => import("@/pages/SearchPage"));
 const Watchlist = lazy(() => import("@/pages/Watchlist"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60_000,
-      gcTime: 30 * 60_000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
 
 const RouteFallback = () => (
   <div className="container py-16">
@@ -34,14 +24,30 @@ const RouteFallback = () => (
   </div>
 );
 
+/** Each route enters with a short rise; keyed by path so it replays. CSS-only,
+ *  transform + opacity, so it stays on the compositor. */
+const PageIn = ({ children }: { children: React.ReactNode }) => {
+  const { pathname } = useLocation();
+  // Home lifts the splash when its first still lands; every other page has
+  // nothing worth waiting for.
+  useEffect(() => {
+    if (pathname !== "/") hideBoot();
+  }, [pathname]);
+  return (
+    <div key={pathname} className="page-in">
+      {children}
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ScrollToTop />
-        <Grain />
         <div className="flex min-h-[100dvh] flex-col">
-          <SiteHeader />
-          <main id="main" className="flex-1">
+          <TopBar />
+          <main id="main" className="flex-1 pb-16">
+            <PageIn>
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -57,8 +63,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </PageIn>
           </main>
-          <SiteFooter />
         </div>
       </BrowserRouter>
   </QueryClientProvider>

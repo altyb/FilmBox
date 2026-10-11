@@ -1,18 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Info } from "lucide-react";
+import { ChevronDown, ExternalLink, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/language";
-import {
-  formatCurrency,
-  formatDate,
-  formatNumber,
-  formatRuntime,
-  formatStatus,
-  yearFrom,
-} from "@/lib/format";
-import {
+import { formatCurrency, formatDate, formatNumber, formatRuntime, formatStatus, yearFrom, formatLanguage } from "@/lib/format";
+import { posterSrcSet, backdropSrcSet,
   backdropUrl,
   posterUrl,
   logoUrl,
@@ -27,13 +22,14 @@ import {
   type Season,
 } from "@/lib/tmdb";
 import { RatingMeter } from "@/components/media/RatingMeter";
-import { TrailerDialog } from "@/components/media/TrailerDialog";
+import { TrailerButton } from "@/components/media/TrailerButton";
 import { WatchlistButton } from "@/components/media/WatchlistButton";
 import { PersonCard } from "@/components/media/PersonCard";
 import { PosterRail } from "@/components/media/PosterRail";
 import { SectionHead } from "@/components/common/SectionHead";
 import { SpecList } from "@/components/common/SpecList";
 import { ErrorState, LineSkeleton, PosterRailSkeleton } from "@/components/common/States";
+import { safeHttpUrl, safeImdbId } from "@/lib/security";
 
 /** Providers are region-specific; TMDB keys them by ISO country. */
 const region = () => {
@@ -49,17 +45,17 @@ const SeasonRow = ({ tvId, season }: { tvId: string; season: Season }) => {
     queryKey: ["season", tvId, season.season_number, lang],
     queryFn: () => fetchSeason(tvId, season.season_number),
     enabled: open,
-    staleTime: 10 * 60_000,
+    staleTime: 60 * 60_000,
   });
 
   return (
     /* <details> gives keyboard support and the open/close semantics for free. */
     <details
-      className="group border border-border bg-surface"
+      className="group overflow-hidden rounded-[1.25rem] bg-surface"
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-4 p-3 transition-colors duration-200 hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
-        <span className="relative h-20 w-14 shrink-0 overflow-hidden border border-border bg-surface-2">
+        <span className="relative h-20 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
           {posterUrl(season.poster_path, "w185") && (
             <img src={posterUrl(season.poster_path, "w185")!} alt="" width={56} height={80} loading="lazy" className="h-full w-full object-cover" />
           )}
@@ -71,12 +67,14 @@ const SeasonRow = ({ tvId, season }: { tvId: string; season: Season }) => {
             {season.air_date && ` · ${yearFrom(season.air_date)}`}
           </span>
         </span>
-        <span className="label shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-90" aria-hidden="true">
-          ▸
-        </span>
+        {/* points along the reading direction when closed, down when open */}
+        <ChevronDown
+          className="h-4 w-4 shrink-0 -rotate-90 text-muted-foreground transition-transform duration-200 group-open:rotate-0 rtl:rotate-90"
+          aria-hidden="true"
+        />
       </summary>
 
-      <ul className="divide-y divide-border border-t border-border">
+      <ul className="divide-y divide-border">
         {isError ? (
           <li className="p-3"><ErrorState onRetry={() => refetch()} /></li>
         ) : !episodes
@@ -112,6 +110,7 @@ const Title = ({ media }: { media: MediaType }) => {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["title", type, id, lang],
     queryFn: () => fetchTitle(type, id),
+    staleTime: 30 * 60_000,
   });
 
   // TMDB's Arabic catalogue is patchy; backfill an empty synopsis rather than
@@ -121,22 +120,41 @@ const Title = ({ media }: { media: MediaType }) => {
     queryKey: ["title-en", type, id],
     queryFn: () => fetchEnglishOverview(type, id),
     enabled: needsFallback,
+    staleTime: 60 * 60_000,
   });
 
   useEffect(() => {
     if (data) document.title = `${titleOf(data)} · ${t.brand}`;
   }, [data, t.brand]);
 
+  // Entrance: the still settles in from a slow zoom, the poster rises, the
+  // copy follows line by line. Transform + opacity only.
+  const hero = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      if (!data) return;
+      gsap
+        .timeline({ defaults: { ease: "power3.out" } })
+        .from(".t-bg", { scale: 1.18, opacity: 0, duration: 1.4 })
+        .from(".t-poster", { y: 50, scale: 0.9, opacity: 0, duration: 0.9 }, 0.15)
+        .from(".t-line", { y: 26, opacity: 0, stagger: 0.07, duration: 0.7 }, 0.3);
+    },
+    { scope: hero, dependencies: [data?.id] },
+  );
+
   if (isPending) {
     return (
-      <div className="container py-16">
-        <div className="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)]">
-          <div className="shimmer hidden aspect-[2/3] w-full lg:block" />
-          <div className="space-y-4">
+      <div className="mx-3 rounded-[1.75rem] bg-surface sm:mx-5">
+        <div className="container grid gap-8 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12 lg:py-16">
+          <div className="shimmer mx-auto aspect-[2/3] w-40 !rounded-[1.75rem] sm:w-48 lg:mx-0 lg:w-full" />
+          <div className="space-y-4 self-end">
+            <LineSkeleton className="w-24" />
             <div className="shimmer h-14 w-3/4" />
             <LineSkeleton className="w-1/3" />
-            <LineSkeleton />
-            <LineSkeleton className="w-5/6" />
+            <div className="flex gap-3 pt-4">
+              <div className="shimmer h-11 w-36 !rounded-full" />
+              <div className="shimmer h-11 w-40 !rounded-full" />
+            </div>
           </div>
         </div>
       </div>
@@ -178,7 +196,7 @@ const Title = ({ media }: { media: MediaType }) => {
     { label: t.runtime, value: runtime },
     { label: t.seasons, value: data.number_of_seasons ? formatNumber(data.number_of_seasons, lang) : null },
     { label: t.episodes, value: data.number_of_episodes ? formatNumber(data.number_of_episodes, lang) : null },
-    { label: t.originalLanguage, value: data.spoken_languages?.[0]?.english_name ?? data.original_language?.toUpperCase() },
+    { label: t.originalLanguage, value: formatLanguage(data.original_language ?? data.spoken_languages?.[0]?.iso_639_1, lang) },
     { label: t.budget, value: data.budget ? formatCurrency(data.budget, lang) : null },
     { label: t.revenue, value: data.revenue ? formatCurrency(data.revenue, lang) : null },
     { label: t.votes, value: data.vote_count ? formatNumber(data.vote_count, lang) : null },
@@ -186,69 +204,72 @@ const Title = ({ media }: { media: MediaType }) => {
 
   return (
     <div>
-      {/* ---- projected backdrop ---- */}
-      <section className="relative isolate overflow-hidden border-b border-border">
+      {/* ---- hero: one rounded window, the poster sits in a cut-out corner ---- */}
+      <section ref={hero} className="shimmer relative isolate mx-3 overflow-hidden !rounded-[1.75rem] !rounded-ee-none sm:mx-5">
         <div className="absolute inset-0 -z-10">
           {backdrop && (
-            <img src={backdrop} alt="" aria-hidden="true" fetchPriority="high" className="projected h-full w-full object-cover" />
+            <img src={backdrop} srcSet={backdropSrcSet(data.backdrop_path)} sizes="100vw" alt="" aria-hidden="true" fetchPriority="high" className="t-bg no-fade h-full w-full object-cover" />
           )}
-          <div className="beam absolute inset-0" />
-          <div className="projection-veil absolute inset-0" />
+          {/* fixed dark veils: the copy is white in both themes, the still decides nothing */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent rtl:bg-gradient-to-l" />
         </div>
 
-        <div className="container grid gap-8 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12 lg:py-16">
-          <div className="film-gate relative mx-auto w-40 border border-border bg-surface p-[3px] shadow-2xl sm:w-48 lg:mx-0 lg:w-full">
-            <div className="aspect-[2/3] overflow-hidden bg-surface-2">
-              {poster && <img src={poster} alt={name} width={500} height={750} fetchPriority="high" className="h-full w-full object-cover" />}
-            </div>
+        <div className="flex min-h-[32rem] flex-col justify-end p-5 pb-6 pe-24 text-white sm:min-h-[38rem] sm:p-10 sm:pe-52 lg:min-h-[min(44rem,82svh)] lg:pe-[18rem]">
+          <p className="t-line label text-white/70">{type === "tv" ? t.tvShows : t.movies}</p>
+          <h1 className="t-line hero-copy-shadow marquee mt-3 max-w-4xl text-balance text-[clamp(2.25rem,6vw,5rem)]">{name}</h1>
+          {data.tagline && (
+            <p className="t-line mt-3 max-w-2xl text-pretty text-sm italic text-white/75 sm:text-base">“{data.tagline}”</p>
+          )}
+
+          <div className="t-line mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="rounded-full bg-black/45 px-3 py-1.5 backdrop-blur-sm">
+              <RatingMeter value={data.vote_average} className="[&_.bg-border]:bg-white/25 [&_.label]:text-white/90" />
+            </span>
+            {year && <span className="label text-white/75 tabular-nums">{year}</span>}
+            {runtime && <span className="label text-white/75">{runtime}</span>}
+            {data.genres?.map((g) => (
+              <Link
+                key={g.id}
+                to={`/${type}?genre=${g.id}`}
+                className="label rounded-full bg-white/15 px-3 py-1 text-white/90 backdrop-blur-sm transition-colors duration-200 hover:bg-white hover:text-black"
+              >
+                {g.name}
+              </Link>
+            ))}
           </div>
 
-          <div className="min-w-0">
-            <p className="label text-primary">{type === "tv" ? t.tvShows : t.movies}</p>
-            <h1 className="marquee mt-3 text-balance text-[clamp(2rem,6vw,4rem)]">{name}</h1>
-            {data.tagline && (
-              <p className="mt-3 text-pretty text-sm italic text-muted-foreground sm:text-base">“{data.tagline}”</p>
+          <div className="t-line mt-7 flex flex-wrap items-center gap-3">
+            <TrailerButton trailer={pickTrailer(data.videos?.results)} className="bg-white text-black" />
+            <WatchlistButton
+              entry={{
+                id: data.id,
+                mediaType: type,
+                title: name,
+                posterPath: data.poster_path ?? null,
+                year,
+                rating: data.vote_average ?? null,
+              }}
+              className="border-white/30 bg-white/10 text-white backdrop-blur-md hover:border-white"
+            />
+            {safeImdbId(data.external_ids?.imdb_id, "tt") && (
+              <a
+                href={`https://www.imdb.com/title/${safeImdbId(data.external_ids?.imdb_id, "tt")}/`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="label press inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-3 text-white transition-colors duration-200 hover:border-white"
+              >
+                IMDb
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
             )}
+          </div>
+        </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <RatingMeter value={data.vote_average} />
-              {year && <span className="label text-muted-foreground tabular-nums">{year}</span>}
-              {runtime && <span className="label text-muted-foreground">{runtime}</span>}
-              {data.genres?.map((g) => (
-                <Link
-                  key={g.id}
-                  to={`/${type}?genre=${g.id}`}
-                  className="label border border-border px-2 py-0.5 text-muted-foreground transition-colors duration-200 hover:border-primary hover:text-primary"
-                >
-                  {g.name}
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <TrailerDialog trailer={pickTrailer(data.videos?.results)} />
-              <WatchlistButton
-                entry={{
-                  id: data.id,
-                  mediaType: type,
-                  title: name,
-                  posterPath: data.poster_path ?? null,
-                  year,
-                  rating: data.vote_average ?? null,
-                }}
-              />
-              {data.external_ids?.imdb_id && (
-                <a
-                  href={`https://www.imdb.com/title/${data.external_ids.imdb_id}/`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="label press inline-flex items-center gap-2 border border-border px-5 py-3 transition-colors duration-200 hover:border-primary hover:text-primary"
-                >
-                  IMDb
-                  <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                </a>
-              )}
-            </div>
+        {/* the poster, set into the bottom-end corner of the window */}
+        <div className="t-poster bite bite-be p-2.5 [--r:1.5rem] sm:p-3">
+          <div className="aspect-[2/3] w-[4.5rem] overflow-hidden rounded-[1rem] bg-surface-2 sm:w-40 lg:w-60">
+            {poster && <img src={poster} srcSet={posterSrcSet(data.poster_path)} sizes="(min-width: 1024px) 15rem, (min-width: 640px) 10rem, 4.5rem" alt={name} width={500} height={750} className="h-full w-full object-cover" />}
           </div>
         </div>
       </section>
@@ -257,7 +278,7 @@ const Title = ({ media }: { media: MediaType }) => {
         {/* ---- main column ---- */}
         <div className="min-w-0 space-y-14">
           {overview && (
-            <section className="space-y-4">
+            <section className="ticket reveal space-y-4 rounded-[1.75rem] bg-surface p-6 [--ny:2.6rem] sm:p-8 sm:[--ny:3.1rem]">
               <SectionHead title={t.overview} />
               <p className="max-w-[68ch] text-pretty leading-relaxed text-foreground/90">{overview}</p>
               {needsFallback && fallback?.overview && (
@@ -281,7 +302,7 @@ const Title = ({ media }: { media: MediaType }) => {
                     <p className="label text-muted-foreground">{g.label}</p>
                     <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
                       {g.people.slice(0, 3).map((p) => (
-                        <Link key={`${g.label}-${p.id}`} to={`/person/${p.id}`} className="text-sm font-medium transition-colors duration-200 hover:text-primary">
+                        <Link key={`${g.label}-${p.id}`} to={`/person/${p.id}`} className="text-sm font-medium transition-colors duration-200 hover:text-foreground">
                           {p.name}
                         </Link>
                       ))}
@@ -292,8 +313,10 @@ const Title = ({ media }: { media: MediaType }) => {
           )}
 
           {data.credits?.cast && data.credits.cast.length > 0 && (
-            <section className="space-y-4">
-              <SectionHead title={t.cast} />
+            <section className="reveal relative rounded-[1.75rem] bg-surface px-4 pb-4 pt-20 sm:px-6 sm:pt-24">
+              <div className="dip px-6 pb-3 pt-2 sm:px-10">
+                <h2 className="marquee whitespace-nowrap text-2xl sm:text-4xl">{t.cast}</h2>
+              </div>
               <div className="rail -mx-1 flex gap-3 overflow-x-auto px-1 pb-3">
                 {data.credits.cast.slice(0, 20).map((p, i) => (
                   <div key={p.id} className="w-24 shrink-0 sm:w-28">
@@ -323,11 +346,13 @@ const Title = ({ media }: { media: MediaType }) => {
                   <img
                     key={s.file_path}
                     src={backdropUrl(s.file_path, "w780")!}
+                    srcSet={backdropSrcSet(s.file_path)}
+                    sizes="(min-width: 640px) 22rem, 17rem"
                     alt=""
                     width={390}
                     height={219}
                     loading="lazy"
-                    className="h-auto w-[17rem] shrink-0 border border-border object-cover sm:w-[22rem]"
+                    className="h-auto w-[17rem] shrink-0 rounded-2xl object-cover sm:w-[22rem]"
                   />
                 ))}
               </div>
@@ -352,8 +377,8 @@ const Title = ({ media }: { media: MediaType }) => {
         {/* ---- spec sheet ---- */}
         <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
           {providerGroups.length > 0 && (
-            <div className="border border-border bg-surface p-4">
-              <p className="label text-primary">{t.whereToWatch}</p>
+            <div className="rounded-[1.5rem] bg-surface p-5">
+              <p className="label text-muted-foreground">{t.whereToWatch}</p>
               <div className="mt-4 space-y-4">
                 {providerGroups.map((g) => (
                   <div key={g.label}>
@@ -367,7 +392,7 @@ const Title = ({ media }: { media: MediaType }) => {
                           title={p.provider_name}
                           width={32}
                           height={32}
-                          className="h-8 w-8 border border-border object-cover"
+                          className="h-8 w-8 rounded-lg object-cover"
                         />
                       ))}
                     </div>
@@ -378,8 +403,8 @@ const Title = ({ media }: { media: MediaType }) => {
             </div>
           )}
 
-          <div className="border border-border bg-surface p-4">
-            <p className="label mb-4 text-primary">{t.brand} · {String(data.id).padStart(6, "0")}</p>
+          <div className="rounded-[1.5rem] bg-surface p-5">
+            <p className="label mb-4 text-muted-foreground">{t.brand} · {String(data.id).padStart(6, "0")}</p>
             <SpecList items={specs} />
           </div>
 
@@ -392,7 +417,7 @@ const Title = ({ media }: { media: MediaType }) => {
                     {c.logo_path ? (
                       <img src={logoUrl(c.logo_path)!} alt="" width={40} height={20} loading="lazy" className="h-5 w-10 object-contain opacity-70 dark:invert" />
                     ) : (
-                      <span className="h-5 w-10 border border-border" aria-hidden="true" />
+                      <span className="h-5 w-10 rounded-md bg-surface-2" aria-hidden="true" />
                     )}
                     <span className="min-w-0 break-words text-xs text-muted-foreground">{c.name}</span>
                   </li>
@@ -401,12 +426,12 @@ const Title = ({ media }: { media: MediaType }) => {
             </div>
           )}
 
-          {data.homepage && (
+          {safeHttpUrl(data.homepage) && (
             <a
-              href={data.homepage}
+              href={safeHttpUrl(data.homepage)!}
               target="_blank"
               rel="noreferrer noopener"
-              className={cn("label inline-flex items-center gap-2 text-muted-foreground transition-colors duration-200 hover:text-primary")}
+              className={cn("label inline-flex items-center gap-2 text-muted-foreground transition-colors duration-200 hover:text-foreground")}
             >
               {t.homepage}
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />

@@ -25,10 +25,10 @@ export const WatchlistButton = ({
       onClick={() => toggle(entry)}
       aria-pressed={saved}
       className={cn(
-        "label press inline-flex items-center gap-2 border px-5 py-3 transition-colors duration-200 ease-out",
+        "label press inline-flex items-center gap-2 rounded-full border px-5 py-3 transition-colors duration-200 ease-out",
         saved
-          ? "border-primary text-primary"
-          : "border-border text-foreground hover:border-primary hover:text-primary",
+          ? "border-foreground bg-foreground text-background"
+          : "border-border text-foreground hover:border-foreground",
         className,
       )}
     >

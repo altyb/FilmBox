@@ -37,7 +37,7 @@ export const PosterRail = ({
             key={`${item.media_type ?? type}-${item.id}`}
             className="w-[7.5rem] shrink-0 snap-start sm:w-[8.5rem] lg:w-[9.5rem]"
           >
-            <PosterCard item={item} type={type} index={i} showIndex={showIndex} />
+            <PosterCard item={item} type={type} index={i} showIndex={showIndex} sizes="(min-width: 1024px) 152px, (min-width: 640px) 136px, 120px" />
           </div>
         ))}
       </div>
@@ -49,10 +49,10 @@ export const PosterRail = ({
           onClick={() => nudge(forward)}
           aria-label={forward ? t.scrollRight : t.scrollLeft}
           className={[
-            "absolute top-[38%] z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center",
-            "border border-border bg-background/90 text-foreground backdrop-blur",
-            "opacity-0 transition-opacity duration-200 ease-out",
-            "hover:border-primary hover:text-primary focus-visible:opacity-100",
+            "absolute top-[38%] z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full",
+            "bg-foreground text-background shadow-lg",
+            "opacity-0 transition-[opacity,transform] duration-200 ease-out",
+            "hover:scale-105 focus-visible:opacity-100",
             "group-hover/rail:opacity-100 md:flex",
             forward ? "end-0" : "start-0",
           ].join(" ")}

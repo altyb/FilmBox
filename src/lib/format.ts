@@ -20,6 +20,17 @@ export const formatDate = (value: string | null | undefined, lang: Language) => 
   }).format(d);
 };
 
+/** A language code ("pt") as a name in the page language ("البرتغالية" /
+ *  "Portuguese"). TMDB only ships English names. */
+export const formatLanguage = (code: string | undefined, lang: Language) => {
+  if (!code) return null;
+  try {
+    return new Intl.DisplayNames([lang === "ar" ? "ar" : "en"], { type: "language" }).of(code) ?? code.toUpperCase();
+  } catch {
+    return code.toUpperCase();
+  }
+};
+
 export const formatNumber = (value: number, lang: Language) =>
   new Intl.NumberFormat(localeOf(lang)).format(value);
 

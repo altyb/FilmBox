@@ -15,13 +15,34 @@ pnpm install
 pnpm dev
 ```
 
-The app ships with a read-only TMDB v4 token so a fresh clone runs with no
-setup. Use your own before deploying:
+A TMDB v4 read token is required (get one at themoviedb.org/settings/api).
+It is **server-side only** — the browser never sees it:
 
 ```bash
 cp .env.example .env
-# VITE_TMDB_TOKEN=<your token from themoviedb.org/settings/api>
+# TMDB_TOKEN=<your token from themoviedb.org/settings/api>
 ```
+
+Set `TMDB_TOKEN` in Vercel project env vars before deploying, otherwise
+`/api/tmdb` returns `tmdb_not_configured`.
+
+## How the API layer protects the quota
+
+The app never calls TMDB directly. `src/lib/tmdb.ts` hits our `/api/tmdb`
+proxy (`api/tmdb/[...path].ts` on Vercel, vite dev proxy locally), which:
+
+- holds the key server-side and allowlists paths + query params (everything
+  else is 403);
+- caches per endpoint family — genres 24 h, details/people/seasons 1 h,
+  trending/lists/discover 15 min, search 5 min;
+- layers three caches: **Vercel edge** (`s-maxage`, shared, free),
+  **in-memory LRU** (500 entries per instance), and **Upstash Redis** when
+  `UPSTASH_REDIS_REST_URL`/`TOKEN` are set (shared, survives cold starts);
+- throttles upstream starts (30/10 s per instance) and forwards TMDB 429s
+  with `Retry-After`, which the client's backoff honors.
+
+Optional Redis: create a free DB at upstash.com, add its REST URL + token to
+`.env` and Vercel env — no code changes needed.
 
 | script | |
 |---|---|

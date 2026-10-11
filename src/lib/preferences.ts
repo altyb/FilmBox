@@ -4,16 +4,21 @@ import type { MediaType } from "./tmdb";
 
 /* ------------------------------------------------------------------- theme */
 
-export type Theme = "dark" | "light" | "system";
+/** Two states only. The first visit follows the device's setting; after
+ *  that the user's own choice sticks. (Old saved "system" values resolve to
+ *  whatever the device is set to.) */
+export type Theme = "dark" | "light";
 
 const systemPrefersLight = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-color-scheme: light)").matches;
 
+const resolve = (theme: string | undefined): Theme =>
+  theme === "light" || theme === "dark" ? theme : systemPrefersLight() ? "light" : "dark";
+
 export const applyTheme = (theme: Theme) => {
-  const light = theme === "light" || (theme === "system" && systemPrefersLight());
-  document.documentElement.classList.toggle("light", light);
-  document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+  document.documentElement.classList.toggle("light", theme === "light");
+  document.documentElement.setAttribute("data-theme", theme);
 };
 
 interface ThemeState {
@@ -24,7 +29,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: "dark",
+      theme: resolve(undefined),
       setTheme: (theme) => {
         applyTheme(theme);
         set({ theme });
@@ -32,7 +37,8 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: "filmbox-theme",
-      onRehydrateStorage: () => (state) => applyTheme(state?.theme ?? "dark"),
+      merge: (saved, current) => ({ ...current, theme: resolve((saved as { theme?: string } | undefined)?.theme) }),
+      onRehydrateStorage: () => (state) => applyTheme(resolve(state?.theme)),
     },
   ),
 );

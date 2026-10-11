@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Film, Tv } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { posterUrl, titleOf, yearOf, mediaTypeOf, type MediaSummary, type MediaType } from "@/lib/tmdb";
+import { posterUrl, posterSrcSet, titleOf, yearOf, mediaTypeOf, type MediaSummary, type MediaType } from "@/lib/tmdb";
 import { RatingMeter } from "./RatingMeter";
 
 interface PosterCardProps {
@@ -12,12 +12,14 @@ interface PosterCardProps {
   index?: number;
   showIndex?: boolean;
   className?: string;
+  /** img `sizes`; rails know their exact tile width, grids default to a share of the viewport. */
+  sizes?: string;
 }
 
-/** A mounted 35mm slide: poster in a paper mat, metadata printed underneath.
+/** Poster as a soft rounded tile, metadata underneath.
  *  Metadata is always visible — the old card hid it behind :hover, which put
  *  it out of reach on every touch device. */
-export const PosterCard = ({ item, type, index, showIndex, className }: PosterCardProps) => {
+export const PosterCard = ({ item, type, index, showIndex, className, sizes }: PosterCardProps) => {
   const mediaType = mediaTypeOf(item, type);
   const title = titleOf(item);
   const year = yearOf(item);
@@ -32,27 +34,27 @@ export const PosterCard = ({ item, type, index, showIndex, className }: PosterCa
     >
       <div
         className={cn(
-          "relative border border-border bg-surface p-[3px]",
-          "transition-[border-color,box-shadow] duration-200 ease-out",
-          "group-hover:border-primary/60 group-focus-visible:border-primary",
-          "group-hover:shadow-[0_12px_36px_-16px_hsl(var(--primary)/0.55)]",
+          "relative transition-transform duration-300 ease-out",
+          "group-hover:-translate-y-1 group-focus-visible:-translate-y-1",
         )}
       >
         {showIndex && index !== undefined && (
-          <span className="label absolute -top-px start-1 z-10 bg-surface px-1 leading-4 text-muted-foreground">
-            {String(index + 1).padStart(3, "0")}
+          <span className="label absolute start-2 top-2 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[0.6rem] text-white backdrop-blur-sm">
+            {String(index + 1).padStart(2, "0")}
           </span>
         )}
-        <div className="relative aspect-[2/3] overflow-hidden bg-surface-2">
+        <div className="shimmer relative aspect-[2/3] overflow-hidden !rounded-[1.25rem] bg-surface-2 shadow-[0_10px_30px_-18px_rgb(0_0_0/0.6)] ring-1 ring-inset ring-foreground/5 transition-shadow duration-300 group-hover:shadow-[0_22px_44px_-18px_rgb(0_0_0/0.7)]">
           {src ? (
             <img
               src={src}
+              srcSet={posterSrcSet(item.poster_path)}
+              sizes={sizes ?? "(min-width: 1024px) 200px, (min-width: 640px) 25vw, 34vw"}
               alt={title}
               width={342}
               height={513}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover transition-[filter] duration-300 ease-out group-hover:brightness-110"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -62,9 +64,9 @@ export const PosterCard = ({ item, type, index, showIndex, className }: PosterCa
         </div>
       </div>
 
-      <div className="mt-2 space-y-1">
+      <div className="mt-2.5 space-y-1 px-0.5">
         {/* two-line box keeps every meta row in a grid on the same baseline */}
-        <h3 className="line-clamp-2 min-h-[2.25rem] text-[13px] font-medium leading-snug transition-colors duration-200 group-hover:text-primary">
+        <h3 className="line-clamp-2 min-h-[2.25rem] text-[13px] font-medium leading-snug">
           {title}
         </h3>
         <div className="flex items-center gap-2">

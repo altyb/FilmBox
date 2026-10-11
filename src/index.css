@@ -1,14 +1,14 @@
-/* Reelify — "Projection"
- * macrostructure: Archive Index (nav-marquee / projector-hero / numbered rails / spec-sheet detail)
- * mood: warm-cinematic · radius 2px (sharp, film-gate) · grain overlay · amber projector-bulb accent
- * dark  #0B0A09 bg · #F4EFE6 text · #E8A33D amber   → text/bg 17.3:1, bg/amber 9.2:1
- * light #F4F0E7 bg · #16130E text · #925A15 amber   → text/bg 16.3:1, bg/amber 5.0:1
- * verified with tastemaker/scripts/check_contrast.py --matrix
+/* FilmBox — monochrome bento (2026-10-11, replaces the amber "Projection" palette)
+ * soft rounded windows, pill actions, the posters carry all the colour
+ * dark  #0A0A0A bg · #F5F5F5 text · #A3A3A3 muted  → 18.1:1 / 7.9:1
+ * light #F5F5F5 bg · #0A0A0A text · #5C5C5C muted  → 18.1:1 / 6.0:1
  */
 
 /* Latin: Anton = marquee display, Archivo = UI, DM Mono = film-can metadata
  * Arabic: IBM Plex Sans Arabic carries display AND body (Anton has no Arabic) */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+/* Fonts are self-hosted (@fontsource, imported in main.tsx): the Google Fonts
+ * stylesheet was render-blocking (~1.7 s on mobile) and a third-party origin
+ * that can be unreachable. unicode-range subsets mean only used glyphs load. */
 
 @tailwind base;
 @tailwind components;
@@ -16,33 +16,32 @@
 
 @layer base {
   :root {
-    /* --- dark is the native mode: the auditorium with the lights down --- */
-    --background: 30 10% 4%;
-    --foreground: 39 39% 93%;
-    --surface: 34 20% 7%;
-    --surface-2: 33 18% 10%;
-    --card: 34 20% 7%;
-    --card-foreground: 39 39% 93%;
-    --popover: 33 18% 10%;
-    --popover-foreground: 39 39% 93%;
-    --muted: 33 18% 10%;
-    --muted-foreground: 36 15% 56%;
-    --primary: 36 79% 57%;
-    --primary-foreground: 37 48% 5%;
-    --secondary: 33 18% 10%;
-    --secondary-foreground: 39 39% 93%;
-    --accent: 33 18% 10%;
-    --accent-foreground: 39 39% 93%;
-    --destructive: 5 54% 50%;
-    --destructive-foreground: 39 39% 93%;
-    --border: 32 21% 14%;
-    --input: 32 21% 14%;
-    --ring: 36 79% 57%;
-    --radius: 2px;
+    /* --- monochrome: black ground, white type; light mode is the inverse --- */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+    --surface: 0 0% 8%;
+    --surface-2: 0 0% 11%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 96%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 64%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 96%;
+    --accent: 0 0% 11%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 0% 98%;
+    --radius: 20px;
 
-    /* the projector bulb — a warm light source, not a decorative gradient */
-    --beam: 36 79% 57%;
-    --grain-opacity: 0.05;
+    --beam: 0 0% 98%;
+    --grain-opacity: 0;
     --backdrop-opacity: 0.45;
 
     /* motion (emil): custom curves, the built-ins are too weak */
@@ -51,31 +50,30 @@
   }
 
   .light {
-    /* --- light mode: the print, on paper --- */
-    --background: 42 37% 93%;
-    --foreground: 38 22% 7%;
-    --surface: 42 100% 98%;
-    --surface-2: 42 37% 96%;
-    --card: 42 100% 98%;
-    --card-foreground: 38 22% 7%;
-    --popover: 42 100% 98%;
-    --popover-foreground: 38 22% 7%;
-    --muted: 42 37% 96%;
-    --muted-foreground: 37 12% 37%;
-    --primary: 33 75% 33%;
-    --primary-foreground: 42 100% 98%;
-    --secondary: 42 37% 96%;
-    --secondary-foreground: 38 22% 7%;
-    --accent: 42 37% 96%;
-    --accent-foreground: 38 22% 7%;
-    --destructive: 5 58% 42%;
-    --destructive-foreground: 42 100% 98%;
-    --border: 40 27% 81%;
-    --input: 40 27% 81%;
-    --ring: 33 75% 33%;
+    --background: 0 0% 96%;
+    --foreground: 0 0% 4%;
+    --surface: 0 0% 100%;
+    --surface-2: 0 0% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 36%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 4%;
+    --accent: 0 0% 92%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 70% 44%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 86%;
+    --input: 0 0% 86%;
+    --ring: 0 0% 4%;
 
-    --beam: 33 75% 33%;
-    --grain-opacity: 0.035;
+    --beam: 0 0% 4%;
+    --grain-opacity: 0;
     --backdrop-opacity: 0.9;
   }
 
@@ -186,18 +184,6 @@
 }
 
 @layer utilities {
-  /* Static film grain. Never animated — animated grain is a nausea and a
-   * paint-cost problem, and a still emulsion is what film actually looks like. */
-  .grain {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    pointer-events: none;
-    opacity: var(--grain-opacity);
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
   /* The beam: warm light thrown from the top of the frame, plus a vignette
    * so the backdrop reads as projected rather than pasted on. */
   .beam {
@@ -231,8 +217,127 @@
   }
   [dir="rtl"] .projection-veil { --veil-dir: left; }
 
+  /* ---- Cut-out shapes (bento-cutout-style skill) ------------------------
+   * .bite: a page-coloured piece that bites into a corner of an image block,
+   * with concave fillets either side so the cut reads as one smooth curve.
+   * Put it inside a `relative overflow-hidden` block; content goes inside it.
+   * Corners: -be bottom-end, -bs bottom-start, -te top-end. --r = fillet.
+   * The bite reaches 1px past the window edge (the window clips it): flush,
+   * a fractional window width left a 1px line of the window's background. */
+  .bite {
+    --r: 1.25rem;
+    --bite-bg: hsl(var(--background));
+    position: absolute;
+    z-index: 2;
+    background: var(--bite-bg);
+  }
+  .bite::before,
+  .bite::after {
+    content: "";
+    position: absolute;
+    width: var(--r);
+    height: var(--r);
+    pointer-events: none;
+    --fillet: radial-gradient(circle at var(--fx) var(--fy), transparent calc(var(--r) - 0.5px), var(--bite-bg) var(--r));
+    background: var(--fillet);
+  }
+  .bite-be { bottom: -1px; inset-inline-end: -1px; border-start-start-radius: var(--r); --fx: 0; --fy: 0; }
+  .bite-be::before { bottom: calc(100% - 1px); inset-inline-end: 0; }
+  .bite-be::after { bottom: 0; inset-inline-end: calc(100% - 1px); }
+  [dir="rtl"] .bite-be { --fx: 100%; }
+  .bite-bs { bottom: -1px; inset-inline-start: -1px; border-start-end-radius: var(--r); --fx: 100%; --fy: 0; }
+  .bite-bs::before { bottom: calc(100% - 1px); inset-inline-start: 0; }
+  .bite-bs::after { bottom: 0; inset-inline-start: calc(100% - 1px); }
+  [dir="rtl"] .bite-bs { --fx: 0; }
+  .bite-te { top: -1px; inset-inline-end: -1px; border-end-start-radius: var(--r); --fx: 0; --fy: 100%; }
+  .bite-te::before { top: calc(100% - 1px); inset-inline-end: 0; }
+  .bite-te::after { top: 0; inset-inline-end: calc(100% - 1px); }
+  [dir="rtl"] .bite-te { --fx: 100%; }
+  /* the fillet vars live on the bite; pseudo-elements read them */
+  .bite::before, .bite::after { --fx: inherit; --fy: inherit; }
+
+  /* .dip: the band's top edge dips down in the middle (page-coloured tab
+   * with fillets both sides). Holds the section title. */
+  .dip {
+    --r: 1.25rem;
+    --bite-bg: hsl(var(--background));
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    background: var(--bite-bg);
+    border-end-start-radius: var(--r);
+    border-end-end-radius: var(--r);
+  }
+  .dip::before,
+  .dip::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: var(--r);
+    height: var(--r);
+  }
+  .dip::before { right: calc(100% - 1px); background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), var(--bite-bg) var(--r)); }
+  .dip::after { left: calc(100% - 1px); background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - 0.5px), var(--bite-bg) var(--r)); }
+
+  /* .ticket: half-circle notches cut out of both sides (true transparency,
+   * works on any background). --ny = notch height from the top. */
+  .ticket {
+    --nr: 14px;
+    --ny: 50%;
+    -webkit-mask:
+      radial-gradient(circle at 0 var(--ny), transparent var(--nr), #000 calc(var(--nr) + 0.5px)) left / 51% 100% no-repeat,
+      radial-gradient(circle at 100% var(--ny), transparent var(--nr), #000 calc(var(--nr) + 0.5px)) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle at 0 var(--ny), transparent var(--nr), #000 calc(var(--nr) + 0.5px)) left / 51% 100% no-repeat,
+      radial-gradient(circle at 100% var(--ny), transparent var(--nr), #000 calc(var(--nr) + 0.5px)) right / 51% 100% no-repeat;
+  }
+
+  /* .notches: the ticket look drawn with page-coloured half-circles instead
+   * of a mask — use it when the band holds popovers (a mask would clip them). */
+  .notches { --nr: 14px; --ny: 50%; }
+  .notches::before,
+  .notches::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--ny) - var(--nr));
+    width: calc(var(--nr) * 2);
+    height: calc(var(--nr) * 2);
+    border-radius: 9999px;
+    background: hsl(var(--background));
+    pointer-events: none;
+  }
+  .notches::before { left: calc(var(--nr) * -1); }
+  .notches::after { right: calc(var(--nr) * -1); }
+
+  /* Below-the-fold sections: the browser skips their layout and paint until
+   * they come near the viewport (most of the home page's ~2,000 nodes). */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
+  }
+
+  /* Giant closing wordmark: the brand set edge to edge. */
+  .wordmark {
+    font-family: 'Anton', system-ui, sans-serif;
+    text-transform: uppercase;
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    font-size: clamp(4rem, 21vw, 22rem);
+  }
+
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
+
+  /* Hero copy is byte-identical in both themes: fixed white type + dark
+   * halo, dark frosted chips. The photo is unknowable — the theme must not
+   * be able to move the text. */
+  .hero-copy-shadow {
+    text-shadow:
+      0 1px 28px rgb(0 0 0 / 0.85),
+      0 1px 4px rgb(0 0 0 / 0.9);
+  }
 
   /* Hover effects are pointer-only — touch devices fire :hover on tap. */
   @media (hover: hover) and (pointer: fine) {
@@ -254,19 +359,104 @@
     to   { opacity: 1; transform: none; }
   }
 
+  /* Window settle-in (durj frame-style): the shell eases down from barely
+   * larger. Compositor-only, first paint only — end state is the rules. */
+  .window-in {
+    animation: window-in 600ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+  }
+  @keyframes window-in {
+    from { transform: scale(1.015); opacity: 0.6; }
+  }
+
+  /* Route entrance: a short rise + fade, compositor-only. */
+  .page-in { animation: page-in 520ms var(--ease-out) both; }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  }
+
+  /* Placeholder: a flat surface with a highlight sweeping across it. The
+   * sweep is a pseudo-element moved with transform, so it runs on the
+   * compositor. (Animating background-position, the old way, re-styled and
+   * repainted every placeholder on every frame: ~15 s of main-thread work in
+   * a Lighthouse run.) */
   .shimmer {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--surface-2)) 0%,
-      hsl(var(--border)) 50%,
-      hsl(var(--surface-2)) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.4s linear infinite;
+    border-radius: 0.875rem;
+    background: hsl(var(--surface-2));
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shimmer:not(.absolute):not(.fixed) { position: relative; }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.07), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s ease-in-out infinite;
   }
   @keyframes shimmer {
-    to { background-position: -200% 0; }
+    to { transform: translateX(100%); }
   }
+
+  /* Images fade in once they have actually arrived (main.tsx tags them
+   * .is-loaded); until then the .shimmer behind them shows. A shimmer stops
+   * animating as soon as its image is in, so loaded pages repaint nothing.
+   * GSAP-driven stills opt out with data-bg / .no-fade. */
+  #root img:not([data-bg]):not(.no-fade) {
+    opacity: 0;
+    transition: opacity 450ms var(--ease-out);
+    /* fail-safe: if the load tag never arrives (script not run yet, a
+     * hot-reload, an odd cache path), show the image anyway */
+    animation: img-show 0s linear 2.5s forwards;
+  }
+  @keyframes img-show { to { opacity: 1; } }
+  #root img.is-loaded { opacity: 1; }
+  #root img.is-failed { visibility: hidden; animation: none; }
+  /* transparent, not a grey fill: a grey under the image shows as a 1px
+   * fringe along every anti-aliased rounded edge */
+  .shimmer:has(img.is-loaded),
+  .shimmer:has(img.is-failed) {
+    background: transparent;
+  }
+  .shimmer:has(img.is-loaded)::after,
+  .shimmer:has(img.is-failed)::after {
+    display: none;
+  }
+}
+
+/* Sections rise in as they scroll into view. Pure CSS (scroll-driven
+ * animations); browsers without it just show the section. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(48px) scale(0.98); }
+    }
+  }
+}
+
+/* Theme / language switch: the new state is revealed as a circle growing out
+ * of the button (TopBar circleReveal), so the default cross-fade is off. The
+ * new view starts clipped to nothing (no one-frame flash of the whole new
+ * theme before the circle starts), and colour transitions are frozen so they
+ * don't replay the switch a second time after the snapshot. */
+html.vt-reveal::view-transition-old(root),
+html.vt-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.vt-reveal::view-transition-new(root) {
+  clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 0px));
+}
+html.vt-reveal,
+html.vt-reveal * {
+  transition: none !important;
 }
 
 /* Reduced motion means fewer and gentler animations, not zero: keep opacity
@@ -281,7 +471,9 @@
     scroll-behavior: auto !important;
   }
   .stagger-in { opacity: 1; animation: none; }
+  .window-in { animation: none; }
+  .page-in { animation: none; }
   .hover-lift:hover { transform: none; }
   .press:active { transform: none; }
-  .shimmer { animation: none; }
+  .shimmer::after { animation: none; }
 }

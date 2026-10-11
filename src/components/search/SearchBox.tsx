@@ -41,7 +41,7 @@ export const SearchBox = ({
     queryKey: ["suggest", debounced, lang],
     queryFn: () => search("multi", debounced),
     enabled,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 
   const suggestions = (data?.results ?? [])
@@ -113,9 +113,9 @@ export const SearchBox = ({
       <form onSubmit={submit} role="search">
         <div
           className={cn(
-            "flex items-center gap-3 border border-border bg-surface transition-colors duration-200 ease-out",
-            "focus-within:border-primary",
-            lg ? "px-5 py-4" : "px-3 py-2",
+            "flex items-center gap-3 rounded-full border border-border bg-surface transition-colors duration-200 ease-out",
+            "focus-within:border-foreground/40",
+            lg ? "px-6 py-4" : "px-4 py-2",
           )}
         >
           <SearchIcon
@@ -159,7 +159,7 @@ export const SearchBox = ({
               <X className={lg ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
             </button>
           ) : (
-            <kbd className="label hidden shrink-0 border border-border px-1.5 py-0.5 text-muted-foreground md:block">
+            <kbd className="label hidden shrink-0 rounded-md border border-border px-1.5 py-0.5 text-muted-foreground md:block">
               /
             </kbd>
           )}
@@ -170,7 +170,7 @@ export const SearchBox = ({
         <div
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[min(28rem,60vh)] overflow-y-auto border border-border bg-popover shadow-2xl"
+          className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[min(28rem,60vh)] overflow-y-auto rounded-3xl border border-border bg-popover p-1.5 shadow-2xl"
         >
           {suggestions.length === 0 ? (
             <p className="label px-4 py-6 text-center text-muted-foreground">
@@ -192,11 +192,11 @@ export const SearchBox = ({
                   onMouseEnter={() => setActive(i)}
                   onClick={() => go(item)}
                   className={cn(
-                    "flex w-full items-center gap-3 px-3 py-2.5 text-start transition-colors duration-150",
+                    "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-start transition-colors duration-150",
                     i === active ? "bg-surface-2" : "bg-transparent",
                   )}
                 >
-                  <span className="relative h-14 w-10 shrink-0 overflow-hidden border border-border bg-surface-2">
+                  <span className="relative h-14 w-10 shrink-0 overflow-hidden rounded-lg bg-surface-2">
                     {img ? (
                       <img src={img} alt="" width={40} height={56} loading="lazy" className="h-full w-full object-cover" />
                     ) : (

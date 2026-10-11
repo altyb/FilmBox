@@ -8,8 +8,8 @@
       name="description"
       content="Browse films and series, watch trailers, and follow the people who make them. Powered by TMDB."
     />
-    <meta name="theme-color" content="#0B0A09" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#F4F0E7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)" />
     <meta property="og:title" content="FilmBox" />
     <meta property="og:description" content="A projection booth for everything worth watching." />
     <meta property="og:image" content="https://filmbox.altayeb.dev/og-image.png" />
@@ -26,15 +26,14 @@
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://api.themoviedb.org" />
     <link rel="preconnect" href="https://image.tmdb.org" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
       // Set theme and direction before first paint: reading them from the
       // React store alone flashes the wrong theme on every reload.
       (function () {
         try {
-          var theme = JSON.parse(localStorage.getItem("filmbox-theme") || "{}").state?.theme || "dark";
-          var light = theme === "light" || (theme === "system" && matchMedia("(prefers-color-scheme: light)").matches);
+          // First visit (or an old "system" value): follow the device. After that, the saved choice.
+          var theme = JSON.parse(localStorage.getItem("filmbox-theme") || "{}").state?.theme;
+          var light = theme === "light" || (theme !== "dark" && matchMedia("(prefers-color-scheme: light)").matches);
           document.documentElement.classList.toggle("light", light);
           document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
 
@@ -43,9 +42,115 @@
           document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
         } catch (e) {}
       })();
+
+      // Home only: start the hero's data and its first still (the LCP image)
+      // right now, before any JS bundle downloads. The app picks the same
+      // in-flight request up (trendingQuery in src/lib/tmdb.ts) - no 2nd call.
+      // Title pages: same idea - start the details request (path + params must
+      // match fetchTitle in src/lib/tmdb.ts) and preload the backdrop.
+      (function () {
+        var m = location.pathname.match(/^\/(movie|tv)\/(\d+)$/);
+        if (!m) return;
+        try {
+          var l = JSON.parse(localStorage.getItem("filmbox-language") || "{}").state;
+          var q = new URLSearchParams({
+            language: l && l.language === "ar" ? "ar-SA" : "en-US",
+            append_to_response: "credits,videos,recommendations,similar,watch/providers,images,external_ids",
+            include_image_language: "en,null",
+          });
+          var data = fetch("/api/tmdb/" + m[1] + "/" + m[2] + "?" + q).then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.json();
+          });
+          window.__earlyTitle = { key: m[1] + "/" + m[2], data: data };
+          data.then(function (d) {
+            var p = d.backdrop_path;
+            if (!p) return;
+            var b = "https://image.tmdb.org/t/p/", k = document.createElement("link");
+            k.rel = "preload";
+            k.as = "image";
+            k.href = b + "w1280" + p;
+            k.setAttribute("imagesrcset", b + "w300" + p + " 300w, " + b + "w780" + p + " 780w, " + b + "w1280" + p + " 1280w");
+            k.setAttribute("imagesizes", "100vw");
+            k.setAttribute("fetchpriority", "high");
+            document.head.appendChild(k);
+          }).catch(function () {});
+        } catch (e) {}
+      })();
+
+      (function () {
+        if (location.pathname !== "/") return;
+        try {
+          var l = JSON.parse(localStorage.getItem("filmbox-language") || "{}").state;
+          var lang = l && l.language === "ar" ? "ar-SA" : "en-US";
+          // Repeat visit: the hero still from the last trending list (saved by
+          // trendingQuery) preloads immediately and the splash is skipped - the
+          // hero paints from that saved list while fresh data loads.
+          var c = JSON.parse(localStorage.getItem("filmbox-trending-movie-" + (l && l.language === "ar" ? "ar" : "en")) || "null");
+          var cp = c && c.items && c.items[0] && c.items[0].backdrop_path;
+          if (cp) {
+            document.documentElement.setAttribute("data-warm", "");
+            var cb = "https://image.tmdb.org/t/p/", ck = document.createElement("link");
+            ck.rel = "preload";
+            ck.as = "image";
+            ck.href = cb + "w1280" + cp;
+            ck.setAttribute("imagesrcset", cb + "w300" + cp + " 300w, " + cb + "w780" + cp + " 780w, " + cb + "w1280" + cp + " 1280w");
+            ck.setAttribute("imagesizes", "(max-width: 768px) 60vw, 100vw");
+            ck.setAttribute("fetchpriority", "high");
+            document.head.appendChild(ck);
+          }
+          window.__trendingMovie = fetch("/api/tmdb/trending/movie/week?language=" + lang).then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.json();
+          });
+          window.__trendingMovie.then(function (d) {
+            var p = d.results && d.results[0] && d.results[0].backdrop_path;
+            if (!p) return;
+            var b = "https://image.tmdb.org/t/p/", k = document.createElement("link");
+            k.rel = "preload";
+            k.as = "image";
+            k.href = b + "w1280" + p;
+            k.setAttribute("imagesrcset", b + "w300" + p + " 300w, " + b + "w780" + p + " 780w, " + b + "w1280" + p + " 1280w");
+            k.setAttribute("imagesizes", "(max-width: 768px) 60vw, 100vw"); // = HERO_SIZES in BentoHero
+            k.setAttribute("fetchpriority", "high");
+            document.head.appendChild(k);
+          }).catch(function () {});
+        } catch (e) {}
+      })();
     </script>
   </head>
   <body>
+    <!-- First-load screen (Durj pattern): the mark draws itself, inks in and
+         breathes until the hero's first still is ready, then a liquid wave lifts
+         it away (src/lib/boot.ts). Plain HTML + CSS so it shows before any JS;
+         auto-hides after 8s if anything stalls. -->
+    <style>
+      #boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#0a0a0a;color:#f5f5f5;
+        -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 240' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100V120C88 132 76 108 62 120S38 132 24 116 8 110 0 122Z'/%3E%3C/svg%3E") 0 0/100% 240% no-repeat;
+        mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 240' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100V120C88 132 76 108 62 120S38 132 24 116 8 110 0 122Z'/%3E%3C/svg%3E") 0 0/100% 240% no-repeat;
+        animation:boot-fallback .6s ease 8s forwards}
+      html.light #boot{background:#f5f5f5;color:#0a0a0a}
+      html[data-warm] #boot{display:none}
+      #boot[data-done]{animation:boot-lift .35s cubic-bezier(.65,0,.35,1) forwards;pointer-events:none}
+      #boot svg{width:min(26vmin,7.5rem);height:auto;overflow:visible}
+      #boot .box,#boot .play{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+      #boot .box{animation:boot-write 1s cubic-bezier(.45,.05,.35,1) .1s forwards}
+      #boot .play{animation:boot-write .6s cubic-bezier(.45,.05,.35,1) .7s forwards,boot-ink .45s ease 1.2s forwards}
+      #boot svg{animation:boot-breathe 1.4s ease-in-out 1.7s infinite alternate}
+      @keyframes boot-write{to{stroke-dashoffset:0}}
+      @keyframes boot-ink{to{fill:currentColor}}
+      @keyframes boot-breathe{to{opacity:.55;transform:scale(.94)}}
+      @keyframes boot-lift{to{-webkit-mask-position:0 100%;mask-position:0 100%;visibility:hidden}}
+      @keyframes boot-fallback{to{opacity:0;visibility:hidden}}
+      @media (prefers-reduced-motion:reduce){#boot{display:none}}
+    </style>
+    <div id="boot" aria-hidden="true">
+      <svg viewBox="0 0 64 64">
+        <rect x="4" y="4" width="56" height="56" rx="18" fill="none" stroke="currentColor" stroke-width="3.5" opacity=".14" />
+        <rect class="box" pathLength="1" x="4" y="4" width="56" height="56" rx="18" />
+        <path class="play" pathLength="1" d="M27 21.5 44.5 32 27 42.5Z" />
+      </svg>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

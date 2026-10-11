@@ -32,6 +32,7 @@ const SearchPage = () => {
     queryFn: ({ pageParam }) => search(scope, query, pageParam as number),
     initialPageParam: 1,
     enabled: query.length > 0,
+    staleTime: 5 * 60_000,
     getNextPageParam: (last) => (last.page < last.total_pages ? last.page + 1 : undefined),
   });
 
@@ -66,10 +67,10 @@ const SearchPage = () => {
             type="button"
             onClick={() => setScope(s.value)}
             className={cn(
-              "label press border px-3 py-1.5 transition-colors duration-200 ease-out",
+              "label press rounded-full border px-4 py-2 transition-colors duration-200 ease-out",
               scope === s.value
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-primary hover:text-primary",
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
             )}
           >
             {t[s.key]}
@@ -118,7 +119,7 @@ const SearchPage = () => {
                   type="button"
                   onClick={() => results.fetchNextPage()}
                   disabled={results.isFetchingNextPage}
-                  className="label press min-w-52 border border-border px-6 py-3 transition-colors duration-200 ease-out hover:border-primary hover:text-primary disabled:opacity-60"
+                  className="label press min-w-52 rounded-full bg-foreground px-6 py-3 text-background transition-opacity duration-200 ease-out hover:opacity-85 disabled:opacity-60"
                 >
                   {results.isFetchingNextPage ? `${t.loading}…` : t.loadMore}
                 </button>

@@ -66,9 +66,16 @@ in Arabic script.
 
 ## Shape, space, motion
 
-- `--radius: 2px`. Sharp corners are the point: film frames are rectangular.
-  No `rounded-2xl` anywhere.
-- Card = poster in a 3px mat inside a 1px border. Mat goes amber on hover.
+- `--radius: 14px`. Mature and rounded (durj-style): windows `16px`,
+  cards `16px`, image wells `8–12px`, actions pill (`999px`). Sharp 2px is gone.
+- Hero window keeps its still fully clear: full-opacity image with only a
+  light bottom gradient grounding the copy (no beam, no full veil there).
+- Card = still/poster in a rounded mat inside a rounded 1px border. Mat goes
+  amber on hover; cards lift `-2px` with a soft amber shadow; images settle-zoom
+  `scale(1.04–1.05)` over 500ms on hover (transform-only, fine pointers).
+- One-shot `.window-in`: the shell settles from `scale(1.015)` over 600ms
+  (`cubic-bezier(0.05,0.7,0.1,1)`), first paint only. Lists keep the 40ms
+  `.stagger-in`. Nothing over 600ms except the shimmer loop.
 - `.film-gate` sprocket strips only on hero/detail posters, never on grid cards
   (too noisy under ~150px).
 - `.spec-row` dotted leaders for every key/value pair.
@@ -77,13 +84,11 @@ in Arabic script.
 - Backdrops: `--backdrop-opacity` 0.45 dark / 0.90 light. Readability comes
   from `.projection-veil` — solid ground on the side the copy sits on, clearing
   to bare image on the other (direction flips under RTL) — **not** from fading
-  the picture. Fading it is what erased the light-mode hero twice: first at
-  0.22 under a full scrim, then at 0.42 under a `brightness(1.45)` filter that
-  blew bright backdrops to white.
+  the picture.
 - Easing: `--ease-out: cubic-bezier(.23,1,.32,1)`, `--ease-in-out: cubic-bezier(.77,0,.175,1)`.
 - Durations: press 160ms, hover/colour 180–200ms, dialog 220ms, list stagger
-  40ms/item. Nothing over 300ms except the 420ms one-shot entrance and the
-  shimmer loop.
+  40ms/item, image settle-zoom 500ms.
+- Hover transforms gated behind `@media (hover: hover) and (pointer: fine)`.
 - All motion is CSS (off the main thread). `framer-motion` was removed.
 - Hover transforms gated behind `@media (hover: hover) and (pointer: fine)`.
 - One global `prefers-reduced-motion` block drops movement, keeps opacity.

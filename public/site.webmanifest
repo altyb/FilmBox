@@ -1,11 +1,11 @@
 {
   "name": "FilmBox",
   "short_name": "FilmBox",
-  "description": "A projection booth for everything worth watching.",
+  "description": "Browse films and series, watch trailers, keep your own reel.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B0A09",
-  "theme_color": "#0B0A09",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
   "icons": [
     {
       "src": "/favicon.svg",

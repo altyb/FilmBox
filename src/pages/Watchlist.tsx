@@ -51,7 +51,7 @@ const Watchlist = () => {
                   type="button"
                   onClick={() => remove(item.mediaType, item.id)}
                   aria-label={`${t.remove}: ${item.title}`}
-                  className="press absolute end-1.5 top-1.5 z-10 flex h-7 w-7 items-center justify-center border border-border bg-background/90 text-muted-foreground opacity-0 backdrop-blur transition-[opacity,color,border-color] duration-200 hover:border-destructive hover:text-destructive focus-visible:opacity-100 group-hover/item:opacity-100"
+                  className="press absolute end-1.5 top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-[opacity,background-color] duration-200 hover:bg-destructive focus-visible:opacity-100 group-hover/item:opacity-100"
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
