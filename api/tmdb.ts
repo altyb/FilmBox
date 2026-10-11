@@ -1,4 +1,6 @@
 /* GET /api/tmdb/<tmdb-path>?<params> — server-side TMDB proxy.
+ * (vercel.json rewrites /api/tmdb/<path> to this file as ?path=<path>: plain
+ * Vercel functions do not route catch-all [...path] filenames.)
  *
  * Why: the TMDB key lives here (server env), never in the client bundle, and
  * every visitor shares the same cache instead of each burning quota.
