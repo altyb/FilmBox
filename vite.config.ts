@@ -9,7 +9,7 @@ net.setDefaultAutoSelectFamilyAttemptTimeout(5000);
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Dev-only passthrough: production serves /api/tmdb from the Vercel
+  // Dev-only passthrough: production serves /api/tmdb from the Cloudflare Pages
   // function (with cache); `vite dev` forwards straight to TMDB so the app
   // runs without `vercel dev`. Uses the server-side TMDB_TOKEN, never baked
   // into the bundle.
